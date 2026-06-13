@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cmbcore"
+version = "0.1.0"
+description = "Minimal-construction CMB temperature power-spectrum engine"
+readme = "00_README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "matplotlib>=3.7",
+]
+
+[project.optional-dependencies]
+class = ["classy"]
+dev = ["pytest>=7", "jupyter", "nbconvert"]
+
+[tool.setuptools]
+packages = ["cmbcore"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

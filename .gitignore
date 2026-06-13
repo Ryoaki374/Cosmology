@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+figures/*.png
+figures/*.pdf
+figures/*.npz
+!figures/.gitkeep
+textbook/*.aux
+textbook/*.log
+textbook/*.out
+textbook/*.toc
+textbook/*.pdf
+textbook/*.fls
+textbook/*.fdb_latexmk

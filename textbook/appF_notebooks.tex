@@ -1,0 +1,32 @@
+% 付録F ノートブックガイド
+\section*{付録F\quad ノートブックガイド}
+\addcontentsline{toc}{section}{付録F\quad ノートブックガイド}
+
+本書のノートブック NB0--NB8 は \texttt{cmbcore} を用い、各章の数値図を読者が
+再現・改変できるよう構成されている。本文章との対応は下表のとおり。
+
+\begin{center}
+\begin{tabular}{lll}
+\hline
+ノートブック & 対応章 & 主な図・内容 \\
+\hline
+NB0 setup\_and\_units & 序章 & SI定数・単位換算・\texttt{Params} \\
+NB1 background & 第1章 & $\Omega_i(x)$, $\mathcal H(x)$, $\eta,z_{\rm eq}$ \\
+NB2 recombination & 第3章 & $X_e$（Saha/Peebles）, $\tau,\tilde g$, $z_*$ \\
+NB3 perturbations\_single\_k & 第6--9章 & $\Theta_\ell,\delta_c,\Phi,\Psi$ の進化 \\
+NB4 transfer\_functions & 第10章 & ソース4項, $\Theta_\ell(k)$, $j_\ell$ \\
+NB5 power\_spectrum & 第11--12章 & $\mathcal D_\ell$ vs Planck, ピーク検出 \\
+NB6 parameter\_dependence & 第13章 & $\tau$, $z_*$, $z_{\rm re}$ の定量依存 \\
+NB7 analytic\_vs\_numeric & 第8--9,12章 & $\ell_A,k_D$, ピーク位置予言 \\
+NB8 validation\_class & 第14章 & 特徴量検証・収束・CLASS比較 \\
+\hline
+\end{tabular}
+\end{center}
+
+\paragraph{実行環境}
+Python 3.11+、\texttt{numpy/scipy/matplotlib}（必須）、\texttt{nbformat/nbconvert}。
+\texttt{pip install -e .} 後に \texttt{make notebooks} で
+\texttt{jupyter nbconvert --execute} により全冊を完走できる。重い分光計算は
+\texttt{figures/cls\_fiducial.npz} と \texttt{figures/param\_study.npz} の
+キャッシュを参照するため高速に再現される。乱数種は \texttt{seed=5220} に固定。
+\texttt{classy} がある環境では NB6/NB8 の CLASS 比較セルが有効になる。
