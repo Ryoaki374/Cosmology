@@ -27,11 +27,12 @@ class BesselBank:
 
     Evaluating ``spherical_jn`` directly for high orders over many points is the
     dominant cost, so we tabulate each :math:`j_\\ell` on a shared ``z`` grid
-    (:math:`\\Delta z\\le 2\\pi/16`) once and spline-interpolate thereafter.
-    Below ``z ~ l`` the function is exponentially small and set to zero.
+    (:math:`\\Delta z=2\\pi/20`) once and spline-interpolate thereafter.
+    (Tested: refining to 2pi/40 leaves C_ell unchanged, so the table is not the
+    jitter source.)
     """
 
-    def __init__(self, ells, z_max, dz=2.0 * np.pi / 16.0):
+    def __init__(self, ells, z_max, dz=2.0 * np.pi / 20.0):
         self.ells = np.asarray(ells)
         z = np.arange(0.0, z_max + dz, dz)
         self._z = z
@@ -51,18 +52,20 @@ class BesselBank:
 _WORKER = {}
 
 
-def _init_worker(params, lmax, lmax_nu, x_los, eta0, eta_x, ells, z_max):
+def _init_worker(params, lmax, lmax_nu, x_los):
     bg = BackgroundCosmology(params)
     rec = Recombination(bg, params)
     solver = PerturbationSolver(bg, rec, params, lmax=lmax, lmax_nu=lmax_nu)
     _WORKER.update(dict(params=params, bg=bg, rec=rec, solver=solver,
-                        x_los=x_los, eta0=eta0, eta_x=eta_x,
-                        ells=np.asarray(ells),
-                        bessel=BesselBank(ells, z_max)))
+                        x_los=x_los))
 
 
-def _transfer_one_k(k):
-    """Return Theta_ell(k) for all ells (R-normalized) for one wavenumber."""
+def _source_one_k(k):
+    """Return the (R-normalized) line-of-sight source S(x) for one wavenumber.
+
+    The source is smooth in k, so it is computed on the (coarse) solve grid and
+    later spline-interpolated onto a fine k-grid for the Bessel integral.
+    """
     ps = PowerSpectrum.__new__(PowerSpectrum)
     ps.p = _WORKER["params"]
     ps.bg = _WORKER["bg"]
@@ -70,18 +73,8 @@ def _transfer_one_k(k):
     ps.solver = _WORKER["solver"]
     ps.lmax = _WORKER["solver"].lmax
     x_los = _WORKER["x_los"]
-    eta0 = _WORKER["eta0"]
-    eta_x = _WORKER["eta_x"]
-    ells = _WORKER["ells"]
-    bessel = _WORKER["bessel"]
-
     res = ps.solver.solve(k)
-    S = ps._source(res, k, x_los) / ps._R_ini(k)
-    kchi = k * (eta0 - eta_x)
-    out = np.empty(len(ells))
-    for il, l in enumerate(ells):
-        out[il] = np.trapezoid(S * bessel.eval(l, kchi), x_los)
-    return out
+    return ps._source(res, k, x_los) / ps._R_ini(k)
 
 
 # Default multipole sampling (§4.3): dense at low ell, coarser at high ell.
@@ -197,69 +190,117 @@ class PowerSpectrum:
         x_late = np.linspace(-6.2, 0.0, n // 3)[1:]
         return np.unique(np.concatenate([x_early, x_rec, x_late]))
 
-    def transfer(self, ells, ks_si=None, x_los=None, verbose=False,
-                 nproc=None):
-        """Compute :math:`\\Theta_\\ell(k)` for all ``ells`` and ``ks_si``.
+    def sources(self, ks_si, x_los=None, verbose=False, nproc=None):
+        """Compute the line-of-sight source ``S(k,x)`` on the solve grid.
 
-        Returns ``(ks_si, Theta)`` with ``Theta`` of shape ``(len(ells), nk)``,
-        already normalized to :math:`\\mathcal R=1`. ``nproc`` parallelizes over
-        ``k`` (default: CPU count; set 1 to disable).
+        Returns ``(ks_si, x_los, S)`` with ``S`` of shape ``(len(ks_si),
+        len(x_los))``, R-normalized. This is the expensive step (one ODE solve
+        per k) and is k-parallelized.
         """
-        if ks_si is None:
-            ks_si = k_grid() / const.Mpc
         if x_los is None:
             x_los = self._default_x_los()
-
-        eta0 = self.bg.eta0
-        eta_x = self.bg.eta(x_los)
-        ells = np.asarray(ells)
+        ks_si = np.asarray(ks_si)
         nk = len(ks_si)
-        z_max = float(ks_si.max() * (eta0 - eta_x.min())) * 1.01
-
         if nproc is None:
             nproc = max(1, os.cpu_count() or 1)
 
         if nproc == 1:
-            bessel = BesselBank(ells, z_max)
-            Theta = np.zeros((len(ells), nk))
+            S = np.empty((nk, len(x_los)))
             for ik, k in enumerate(ks_si):
                 res = self.solver.solve(k)
-                S = self._source(res, k, x_los) / self._R_ini(k)
-                kchi = k * (eta0 - eta_x)
-                for il, l in enumerate(ells):
-                    Theta[il, ik] = np.trapezoid(
-                        S * bessel.eval(l, kchi), x_los)
+                S[ik] = self._source(res, k, x_los) / self._R_ini(k)
                 if verbose and ik % 25 == 0:
-                    print(f"  transfer k {ik+1}/{nk}")
-            return ks_si, Theta
+                    print(f"  source k {ik+1}/{nk}")
+            return ks_si, x_los, S
 
-        init_args = (self.p, self.solver.lmax, self.solver.lmax_nu,
-                     x_los, eta0, eta_x, ells, z_max)
+        init_args = (self.p, self.solver.lmax, self.solver.lmax_nu, x_los)
         with Pool(processes=nproc, initializer=_init_worker,
                   initargs=init_args) as pool:
-            results = pool.map(_transfer_one_k, list(ks_si),
+            results = pool.map(_source_one_k, list(ks_si),
                                chunksize=max(1, nk // (nproc * 4)))
-        Theta = np.array(results).T  # (n_ell, n_k)
-        return ks_si, Theta
+        return ks_si, x_los, np.array(results)
+
+    def los_integral(self, ells, ks_si, x_los, S, k_fine=None):
+        """Line-of-sight Bessel integral on a fine k-grid (§4.2).
+
+        :math:`\\Theta_\\ell(k)=\\int S(k,x)\\,j_\\ell[k(\\eta_0-\\eta)]\\,dx`.
+
+        The source ``S`` (smooth in k) is spline-interpolated from the coarse
+        solve grid ``ks_si`` onto ``k_fine`` before the integral, because
+        :math:`\\Theta_\\ell` itself oscillates rapidly in k (period
+        :math:`\\sim2\\pi/\\chi_*`) and must be sampled finely for a clean C_ell.
+        Returns ``(k_fine, Theta)`` with ``Theta`` shape ``(len(ells), len(k_fine))``.
+        """
+        ells = np.asarray(ells)
+        eta0 = self.bg.eta0
+        chi = eta0 - self.bg.eta(x_los)          # comoving distance [m]
+        if k_fine is None:
+            k_fine = self._fine_k_grid(ks_si)
+
+        # Spline the (smooth-in-k) source onto the fine grid, in ln k.
+        lnk = np.log(ks_si)
+        S_fine = CubicSpline(lnk, S, axis=0)(np.log(k_fine))  # (n_fine, n_x)
+
+        z_max = float(k_fine.max() * chi.max()) * 1.01
+        bessel = BesselBank(ells, z_max)
+        Theta = np.empty((len(ells), len(k_fine)))
+        arg = k_fine[:, None] * chi[None, :]      # (n_fine, n_x)
+        for il, l in enumerate(ells):
+            jl = bessel.eval(l, arg)              # (n_fine, n_x)
+            Theta[il] = np.trapezoid(S_fine * jl, x_los, axis=1)
+        return k_fine, Theta
+
+    def _fine_k_grid(self, ks_si):
+        """Uniform fine k-grid resolving the j_l(k chi) oscillation (~2pi/chi)."""
+        chi_max = self.bg.eta0 - float(self.bg.eta(self.solver.x_start))
+        dk = (2.0 * np.pi / chi_max) / 8.0        # ~8 samples per oscillation
+        kmin, kmax = float(ks_si.min()), float(ks_si.max())
+        n_fine = int(np.ceil((kmax - kmin) / dk)) + 1
+        return np.linspace(kmin, kmax, max(n_fine, len(ks_si)))
+
+    def transfer(self, ells, ks_si=None, x_los=None, verbose=False,
+                 nproc=None, k_fine=None):
+        """Compute :math:`\\Theta_\\ell(k)` (R-normalized) via source-spline + LOS.
+
+        Returns ``(k_fine, Theta)`` with ``Theta`` of shape
+        ``(len(ells), len(k_fine))``. ``ks_si`` is the (coarse) solve grid;
+        the C_ell-resolution fine grid is built internally (or passed).
+        """
+        if ks_si is None:
+            ks_si = k_grid() / const.Mpc
+        ells = np.asarray(ells)
+        ks_si, x_los, S = self.sources(ks_si, x_los, verbose=verbose,
+                                       nproc=nproc)
+        return self.los_integral(ells, ks_si, x_los, S, k_fine=k_fine)
 
     # --- C_ell assembly (§4.3) -------------------------------------------------
-    def cls(self, ells=None, ks_si=None, verbose=False):
-        """Return ``(ells, C_ell)`` in dimensionless units (Theta^2)."""
+    def integrate_cls(self, ells, ks_si, Theta):
+        """C_ell from a transfer evaluated on a (fine) k-grid.
+
+        C_ell = 4 pi int P_R(k) |Theta_ell|^2 dk/k = 4 pi int P_R |Theta|^2 dlnk.
+        ``Theta`` here is sampled on the fine grid returned by :meth:`transfer`,
+        which resolves the rapid j_l(k chi) oscillation, so a plain trapezoid is
+        accurate. ``ks_si`` must be that same fine grid.
+        """
+        P = self.P_R(ks_si)
+        lnk = np.log(ks_si)
+        Cl = np.array([4.0 * np.pi * np.trapezoid(P * Theta[il] ** 2, lnk)
+                       for il in range(len(ells))])
+        return np.asarray(ells), Cl
+
+    def cls(self, ells=None, ks_si=None, verbose=False, return_transfer=False):
+        """Return ``(ells, C_ell)`` in dimensionless units (Theta^2).
+
+        With ``return_transfer=True`` also returns ``(ks_si, Theta)`` so the
+        transfer can be cached and re-integrated cheaply.
+        """
         if ells is None:
             ells = default_ells()
         ks_si, Theta = self.transfer(ells, ks_si, verbose=verbose)
-        # C_ell = 4 pi int P_R(k) |Theta_ell|^2 dk/k = 4 pi int P_R |Theta|^2 dlnk.
-        # A plain trapezoid is used: for the (necessarily) under-resolved
-        # oscillatory integrand |Theta_ell(k)|^2, spline/Simpson schemes overshoot
-        # between samples and amplify l-to-l jitter, whereas the trapezoid is
-        # stable. Residual mid-/high-l jitter is reduced by raising n_k (the
-        # convergence study, 04 §3).
-        P = self.P_R(ks_si)
-        lnk = np.log(ks_si)
-        Cl = np.zeros(len(ells))
-        for il in range(len(ells)):
-            Cl[il] = 4.0 * np.pi * np.trapezoid(P * Theta[il] ** 2, lnk)
-        return np.asarray(ells), Cl
+        ells, Cl = self.integrate_cls(ells, ks_si, Theta)
+        if return_transfer:
+            return ells, Cl, ks_si, Theta
+        return ells, Cl
 
     def dls(self, ells=None, ks_si=None, verbose=False):
         """Return ``(ells, D_ell)`` with :math:`D_\\ell=\\ell(\\ell+1)C_\\ell T_{CMB}^2/2\\pi` [μK²]."""
