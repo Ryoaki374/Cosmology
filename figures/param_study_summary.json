@@ -1,0 +1,10 @@
+{
+  "tau_reio_fid": 0.0,
+  "tau_reio_z8": 0.06911,
+  "z_star_fid": 1082.34,
+  "z_star_shift_p5": 1032.29,
+  "reio_suppression_l500_pct": -12.889,
+  "reio_predicted_exp_-2tau_pct": -12.909,
+  "l1_fid": 220,
+  "l1_recomb_p5": 210
+}

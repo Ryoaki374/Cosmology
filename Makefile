@@ -1,8 +1,8 @@
-.PHONY: all test figures values notebooks book clean
+.PHONY: all test figures values params nbgen notebooks book clean
 
 PY ?= python3
 
-all: test values figures
+all: test values params figures nbgen
 
 test:
 	$(PY) -m pytest -q
@@ -10,8 +10,15 @@ test:
 values:
 	$(PY) scripts/make_values.py
 
+params:
+	$(PY) scripts/make_param_study.py
+
 figures:
 	$(PY) scripts/make_figures.py
+
+nbgen:
+	$(PY) scripts/make_notebooks.py
+	$(PY) scripts/make_textbook_skeleton.py
 
 notebooks:
 	jupyter nbconvert --to notebook --execute --inplace notebooks/*.ipynb

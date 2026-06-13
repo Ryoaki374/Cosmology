@@ -6,12 +6,12 @@
 **実装順序（`04` §1: cmbcore → 図版 → 本文）に従い、基盤である `cmbcore` を
 最優先で完成させた。**
 
-## 完了（WP0, WP1 中核）
+## 完了（WP0–WP4 中核 ＋ WP5 構成）
 
 ### WP0 リポジトリ雛形
 - `cmbcore/ tests/ notebooks/ scripts/ textbook/ figures/ specs/` 構成。
-- `pyproject.toml`（依存固定）、`Makefile`（`test/values/figures/notebooks/book`）。
-- LaTeX 雛形（`textbook/main.tex` ＋ 3種ボックス環境）と第1章サンプル。
+- `pyproject.toml`（依存固定, `pip install -e .` 可）、`Makefile`（`test/values/figures/notebooks/book/all`）。
+- LaTeX 雛形（`textbook/main.tex` ＋ 3種ボックス環境）。
 
 ### WP1 `cmbcore`（`03_numerics_spec.md` 全節を実装）
 | モジュール | 状態 | 備考 |
@@ -48,23 +48,42 @@ SWプラトー $\mathcal D_\ell\sim10^3\,\mu K^2$、Silk減衰尾）を再現す
 $\mathcal R_{\rm ini}=1$ として確定（`spectrum._R_ini`）。
 pytest は §5.1–5.2 の単体テスト全20件が緑。
 
+### WP2 ノートブック NB0–NB8（`02_notebook_spec.md`）
+- 全9冊を `scripts/make_notebooks.py` で生成。重いスペクトルはキャッシュ
+  （`cls_fiducial.npz`, `param_study.npz`）を読み込み、`nbconvert --execute` が高速に完走。
+- NB0 単位 / NB1 背景 / NB2 再結合 / NB3 単一モード摂動 / NB4 転送関数 /
+  NB5 パワースペクトル（Planck重ね） / NB6 パラメータ依存性 / NB7 解析vs数値 /
+  NB8 検証・収束。各冊「説明→実行→図→問い→課題」構造。
+
+### WP3/WP4 検証・図版・values
+- `scripts/make_values.py` → `figures/values.json`（本文差し込み用の全数値）。
+- `scripts/make_figures.py` → 背景・再結合・摂動・スペクトル・パラメータ依存の図、
+  `figures/manifest.yaml`。
+- `scripts/make_param_study.py` → 必須トピック（$\tau$, $z_*$, $z_{\rm re}$）の
+  定量計算と `param_study.npz` / `param_study_summary.json`。
+- `.github/workflows/ci.yml`（pytest＋values 生成）。
+
+### WP5 本文（構成完了・プローズは執筆段階）
+- 全14章＋付録A–F の `.tex` を `textbook/` に配置し `main.tex` で部・章・付録を構成。
+- 第1–2章は本文記述済み。第3–14章・付録は節構成・導出契約ID・章末枠を持つ
+  スケルトン（`scripts/make_textbook_skeleton.py` で再生成可）。本文プローズと
+  全導出が残作業。
+
 ## 既知の制約・残課題（次フェーズへ引き継ぎ）
-- **CLASS比較（`03` §5.3）**: 当環境に `classy` 未導入のため未実施。
-  キャッシュCSV比較モードの参照データ生成が必要。ピーク振幅の +12〜25% は
+- **CLASS比較（`03` §5.3）**: `classy` 未導入のため未実施。ピーク振幅の +12〜25% は
   偏光無視・$Y_p=0$ の系統差とみられ、CLASS較正で確定する。
-- **視線積分の性能**: ベッセル表の構築（高 $\ell$）が単一プロセスで律速。
-  ell並列化が次の最適化候補（結果には影響しない）。
-- **WP2 ノートブック**: NB0/NB1 のみ実装（`scripts/make_notebooks.py`）。
-  NB2–NB8 は同ジェネレータを拡張。
-- **WP5 本文**: 第1章のみ。第2–14章＋付録は `01_textbook_spec.md` の
-  導出契約に沿って執筆。
-- **WP3 CI**: GitHub Actions ワークフロー未作成（pytest＋NB＋CLASS比較）。
+- **$\sum m_\nu$**: 質量ニュートリノは本版で CLASS 委譲（`04` §7）。NB6/13章は機構説明＋
+  $\tau$・$z_*$ は自前計算で定量提示済み。
+- **WP5 本文プローズ**: 第3–14章・付録の導出本文（構成は完成）。
+- **視線積分の性能**: 高 $\ell$ ベッセル表構築が単一プロセスで律速（結果不変、ell並列化が最適化候補）。
 
 ## 再現方法
 ```bash
-pip install -e .            # または pip install numpy scipy matplotlib pytest
-make test                  # 単体テスト（§5.1-5.2）
-make values                # figures/values.json と cls_fiducial.npz を生成
-make figures               # 背景・再結合・スペクトル図を生成
-python scripts/make_notebooks.py
+pip install -e .            # 依存: numpy scipy matplotlib pytest nbformat nbconvert
+make test                  # 単体テスト（§5.1-5.2）全20件
+make values                # figures/values.json と cls_fiducial.npz
+python scripts/make_param_study.py   # param_study.npz（τ, z_* 依存）
+make figures               # 全図 + figures/manifest.yaml
+python scripts/make_notebooks.py     # NB0–NB8 生成
+make notebooks             # nbconvert --execute で全NB完走確認
 ```

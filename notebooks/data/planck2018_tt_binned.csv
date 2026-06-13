@@ -1,0 +1,17 @@
+# Planck 2018 TT binned D_l overlay — ILLUSTRATIVE APPROXIMATE ANCHORS ONLY.
+# These are coarse round-number anchors for the NB5 overlay demonstration; they
+# are NOT the official data. Replace with the official Planck PR3 file:
+#   COM_PowerSpect_CMB-TT-binned_R3.01.txt
+#   https://pla.esac.esa.int/  (Planck Legacy Archive)
+# Columns (comment-marked so loaders skip it): l, Dl [uK^2], err [uK^2]
+# l,Dl,err
+30,1100,80
+100,3050,150
+220,5750,120
+400,2200,90
+540,2550,90
+680,1850,80
+810,2500,90
+1000,1200,70
+1130,1450,80
+1400,900,70
