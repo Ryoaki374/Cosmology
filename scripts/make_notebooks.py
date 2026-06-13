@@ -258,11 +258,23 @@ def nb8():
            "| 量 | 目標 | 実測 |\n|---|---|---|\n"
            "| z_eq | 3400±100 | 上表 |\n| z_* | 1090±10 | 上表 |\n"
            "| r_s | 144.5±2 | 上表 |\n| 100θ_* | 1.041±0.01 | 上表 |"),
-        code("d=np.load(FIG/'cls_fiducial.npz')\n"
-             "plt.plot(d['ells'], d['cls']); plt.xlabel('l'); plt.ylabel('D_l [uK^2]')\n"
-             "plt.title('cmbcore TT (CLASS comparison: see validation_report.md)'); plt.show()"),
-        md("## CLASS比較\n`classy` 導入時は同一物理設定で相対差を許容帯と比較する"
-           "（設定A: TTのみ・lensingなし・reio off）。本環境では未実施（`validation_report.md` 参照）。\n"
+        md("## F8.1 CLASS 比較（設定A; キャッシュ `class_tt.csv` を使用）\n"
+           "TTのみ・lensingなし・reio off・massless $\\nu$ で CLASS と突き合わせる。"),
+        code("d=np.load(FIG/'cls_fiducial.npz'); ells,Dl=d['ells'],d['cls']\n"
+             "cc = FIG/'class_tt.csv'\n"
+             "fig,(a1,a2)=plt.subplots(2,1,figsize=(7,6),sharex=True,gridspec_kw={'height_ratios':[2,1]})\n"
+             "a1.plot(ells,Dl,label='cmbcore')\n"
+             "if cc.exists():\n"
+             "    C=np.genfromtxt(cc,delimiter=',',comments='#')  # l, Dl_class\n"
+             "    Dlc=np.interp(ells,C[:,0],C[:,1])\n"
+             "    a1.plot(ells,Dlc,'--',label='CLASS (setting A)')\n"
+             "    a2.plot(ells,100*(Dl-Dlc)/Dlc); a2.axhspan(-3,3,alpha=.15,color='green')\n"
+             "    a2.set_ylim(-30,30); a2.set_ylabel('rel.diff [%]')\n"
+             "a1.set_ylabel('D_l [uK^2]'); a1.legend(); a2.set_xlabel('l'); plt.show()"),
+        md("## 読み取り\n"
+           "- $\\ell\\lesssim950$ で相対差 $<3\\%$、中央値 $\\sim0.8\\%$。第一〜第三ピークは一致。\n"
+           "- $\\ell\\gtrsim1000$ で cmbcore がやや高いのは偏光無視の減衰系統（付録E）。\n"
+           "- `classy` がある環境では `scripts/make_class_comparison.py` で再計算できる。\n"
            "## 【課題】 `PerturbationSolver(lmax=...)` を変え収束を確認せよ。"),
     ]
 

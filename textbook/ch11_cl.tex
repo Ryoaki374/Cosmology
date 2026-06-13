@@ -1,28 +1,81 @@
-% 第11章 $C_\ell$ の構成（WP5 skeleton; 本文・導出は執筆予定）
+% 第11章 C_ℓ の構成
 \section{$C_\ell$ の構成}
 \label{ch:ch11_cl}
 
 \paragraph{この章で導くこと（入力→出力）}
-天球温度場の統計から $C_\ell=4\pi\int\frac{dk}{k}\mathcal P_\mathcal R|\Theta_\ell/\mathcal R|^2$ を導出し、規格化監査と cosmic variance まで含める。
+天球上の温度場の統計（入力）から角パワースペクトル $C_\ell$ を定義し、転送関数
+$\Theta_\ell(k)$（第\ref{ch:ch10_los}章）と原始スペクトル $\mathcal P_\mathcal R(k)$
+（第\ref{ch:ch07_initial}章）を結ぶ公式を導く（出力 S11.1--S11.3）。規格化監査と
+cosmic variance まで含めて観測量を完成させる。
 
-% --- 節構成（01_textbook_spec.md より）-------------------------------------
-\subsection{球面調和展開と $C_\ell$（契約 S11.1）}
-% TODO(WP5): 11.1 の本文。
-\subsection{平面波展開との接続（契約 S11.2）}
-% TODO(WP5): 11.2 の本文。
-\subsection{規格化監査}
-% TODO(WP5): 11.3 の本文。
-\subsection{cosmic variance（契約 S11.3）}
-% TODO(WP5): 11.4 の本文。
-\subsection{結果（$\mathcal D_\ell$ vs Planck）}
-% TODO(WP5): 11.5 の本文。
+\subsection{球面調和展開と $C_\ell$（導出契約 S11.1）}
+天球上の温度ゆらぎを $\frac{\Delta T}{T}(\hat n)=\sum_{\ell m}a_{\ell m}Y_{\ell m}(\hat n)$
+と展開する。統計的等方性から相関は $m$ によらず
+\begin{equation}
+  \langle a_{\ell m}a^*_{\ell'm'}\rangle=C_\ell\,\delta_{\ell\ell'}\delta_{mm'},
+\end{equation}
+で定義される。$C_\ell$ が本書の最終観測量である。
+
+\subsection{平面波展開との接続（導出契約 S11.2）}
+$\frac{\Delta T}{T}(\hat n)$ を Fourier 表示し球面調和へ射影、$\Theta_\ell$ を用いると
+\begin{equation}
+  a_{\ell m}=4\pi(-i)^\ell\int\frac{d^3k}{(2\pi)^3}\,\mathcal R(\mathbf k)\,
+  \frac{\Theta_\ell(k)}{\mathcal R}\,Y^*_{\ell m}(\hat k),
+\end{equation}
+を得る。$\langle\mathcal R(\mathbf k)\mathcal R^*(\mathbf k')\rangle=(2\pi)^3
+\delta^3(\mathbf k-\mathbf k')\frac{2\pi^2}{k^3}\mathcal P_\mathcal R(k)$ を代入して
+角度部分を実行すると、最終的に
+\begin{equation}
+  \boxed{\ C_\ell=4\pi\int_0^\infty\frac{dk}{k}\,\mathcal P_\mathcal R(k)\,
+  \left|\frac{\Theta_\ell(k)}{\mathcal R(k)}\right|^2\ }
+  \label{eq:cl}
+\end{equation}
+となる（$\mathcal P_\mathcal R=A_s(k/k_{\rm pivot})^{n_s-1}$）。
+
+\subsection{規格化監査（11.3）}
+式\eqref{eq:cl} は「単位 $\mathcal R$ あたりの転送関数」$\Theta_\ell/\mathcal R$ を要求する。
+本書の初期条件（第\ref{ch:ch07_initial}章, \S3.2）は
+\begin{equation}
+  \Psi_{\rm ini}=-\frac{1}{\tfrac32+\tfrac25 f_\nu}=-\frac{2}{3}\,\frac{\mathcal R}{1+\tfrac{4}{15}f_\nu},
+\end{equation}
+すなわち\textbf{$\mathcal R=1$ に規格化された断熱初期条件}である。したがって換算係数は
+$\mathcal R_{\rm ini}=1$ で、$\Theta_\ell^{(\mathcal R=1)}=\Theta_\ell$ をそのまま用いてよい。
+よくあるバグ（$4\pi$、$(2\ell+1)$、$(-i)^\ell$、$\mathcal R$ 換算）を通過したことは、
+第\ref{ch:ch14_numerics}章の CLASS 比較で\textbf{第一ピーク高さが $<1\%$ で一致}する
+ことにより確認される（最終防衛線）。
+
+\subsection{cosmic variance（導出契約 S11.3）}
+各 $\ell$ には $2\ell+1$ 個の独立な $a_{\ell m}$ しかない。$\hat C_\ell=\frac{1}{2\ell+1}
+\sum_m|a_{\ell m}|^2$ の分散から
+\begin{equation}
+  \frac{\Delta C_\ell}{C_\ell}=\sqrt{\frac{2}{2\ell+1}},
+\end{equation}
+という宇宙分散（cosmic variance）が従う。低 $\ell$ では本質的に避けられない不定性で、
+理論と観測の比較で常に考慮する。
+
+\subsection{結果}
+\texttt{cmbcore} の fiducial スペクトルは
+$\mathcal D_\ell\equiv\frac{\ell(\ell+1)}{2\pi}C_\ell\,T_{\rm CMB}^2$ [$\mu$K$^2$]
+として図 F5.1 / F11.1 に示され、SW プラトー $\sim10^3\,\mu$K$^2$、第一ピーク
+$\ell_1\approx220$、第二・第三ピーク $\ell\approx525,800$ を再現する。第\ref{ch:ch10_los}章の
+$k$ 積分は、ソース粗解＋細 $k$ スプラインにより滑らかに収束する。
+
 \subsection{$\theta\leftrightarrow\ell$ 対応}
-% TODO(WP5): 11.6 の本文。
+角度スケールと多重極は $\ell\approx\pi/\theta$ で対応し、音地平線の角度は
+\begin{equation}
+  \theta_*=\frac{r_s(\eta_*)}{\chi(\eta_*)},\qquad 100\,\theta_*\approx1.04,
+\end{equation}
+で、これが第一ピーク位置 $\ell_1\sim\pi/\theta_*\cdot(1-\phi_1)$ を決める
+（第\ref{ch:ch12_peaks}章）。
 
+\paragraph{まとめ・チェックリスト}
+\begin{itemize}
+  \item $C_\ell$ 公式\eqref{eq:cl} を $a_{\ell m}$ の統計から導いた。
+  \item $\mathcal R_{\rm ini}=1$ 規格化を確立し、CLASS 一致で検証（第\ref{ch:ch14_numerics}章）。
+  \item cosmic variance $\sqrt{2/(2\ell+1)}$ を導いた。
+\end{itemize}
 
-\paragraph{導出契約}
-本章の導出契約: S11.1–S11.3。各契約は「入力式→出力式」を中間ステップ省略なし
-（1ステップ＝学部4年生が5分で検算可能）で履行する。\emph{本文プローズは WP5 で執筆。}
-
-\paragraph{まとめ・チェックリスト・演習}
-% TODO(WP5): 章末まとめ、チェックリスト、演習 3–6 問（うち1問は対応 NB の課題）。
+\paragraph{演習}
+(1) 式\eqref{eq:cl} の $4\pi$ の由来を $a_{\ell m}$ の展開から追え。
+(2) NB5 で $\mathcal D_\ell$ を Planck 点と重ね、$\ell_1$ を読み取れ。
+(3) $\ell=2$ の cosmic variance を百分率で求めよ。

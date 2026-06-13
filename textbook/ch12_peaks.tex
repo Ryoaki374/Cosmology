@@ -1,26 +1,56 @@
-% 第12章 音響ピークの解剖学（WP5 skeleton; 本文・導出は執筆予定）
+% 第12章 音響ピークの解剖学
 \section{音響ピークの解剖学}
 \label{ch:ch12_peaks}
 
 \paragraph{この章で導くこと（入力→出力）}
-解析理解と射影を合成し、SWプラトー・ピーク位置・奇偶非対称・減衰尾・ISW を指差し確認する。
+第\ref{ch:ch08_acoustic}--\ref{ch:ch10_los}章の解析理解と第\ref{ch:ch11_cl}章の射影を
+合成し、スペクトルの全特徴（SW プラトー・ピーク位置・奇偶非対称・減衰尾・ISW）を
+一つずつ指差し確認する。本章は本書の「卒業写真」である。
 
-% --- 節構成（01_textbook_spec.md より）-------------------------------------
-\subsection{ピーク位置の公式（$\ell_1\approx220$）}
-% TODO(WP5): 12.1 の本文。
-\subsection{奇数/偶数ピークの非対称}
-% TODO(WP5): 12.2 の本文。
-\subsection{SWプラトーと積分SW（契約 S12.1）}
-% TODO(WP5): 12.3 の本文。
+\subsection{ピーク位置の公式}
+音響振動の位相 $kr_s(\eta_*)$ が極値をとる波数が、$j_\ell(k\chi_*)$ の射影で多重極に
+写る。位相シフト $\phi_m$（駆動とニュートリノ由来、$\phi_1\approx0.27$）を含めて
+\begin{equation}
+  \ell_m\simeq(m-\phi_m)\,\frac{\pi\chi_*}{r_s^*}=(m-\phi_m)\,\ell_A,\qquad
+  \ell_A\equiv\frac{\pi\chi_*}{r_s^*}.
+\end{equation}
+\texttt{cmbcore} では $\ell_A\approx304$、$r_s^*\approx143.4$~Mpc、$\chi_*\approx13.89$~Gpc
+で、第一ピーク $\ell_1\approx220$ を再現する（\texttt{analytic.acoustic\_scale}、NB7）。
+
+\subsection{奇数ピークと偶数ピーク}
+バリオン荷重 $R=3\rho_b/4\rho_\gamma$ は振動のゼロ点を $-(1+R)\Psi$ だけずらす
+（第\ref{ch:ch08_acoustic}章）。その結果、圧縮（奇数ピーク）が希薄化（偶数ピーク）より
+強められ、ピーク高に奇偶非対称が生じる。$\Omega_bh^2$ を上げると非対称が増す
+（第\ref{ch:ch13_params}章 F6/13.3）。
+
+\subsection{SW プラトーと積分 SW（導出契約 S12.1）}
+低 $\ell$ では SW 公式 $\Theta_0+\Psi=\Psi/3$（第\ref{ch:ch10_los}章）と
+$\int_0^\infty j_\ell^2(u)\,du/u=1/[2\ell(\ell+1)]$（付録B）から、
+$n_s=1$ で $\ell(\ell+1)C_\ell/2\pi\simeq$ 一定のプラトーが導かれる。これに二種の
+積分 SW（ISW）が乗る:
+\begin{itemize}
+  \item \textbf{early ISW}: 等密度期直後にポテンシャルが残留減衰し、地平線進入直後の
+  モードを増強 → 第一ピークをわずかに持ち上げる；
+  \item \textbf{late ISW}: $\Lambda$ 優勢期にポテンシャルが減衰し、最低 $\ell$ を持ち上げる。
+\end{itemize}
+両者はソースの $e^{-\tau}(\Psi'-\Phi')$ 項（式\eqref{eq:source}）に由来する。
+
 \subsection{減衰尾}
-% TODO(WP5): 12.4 の本文。
+Silk 減衰スケール $k_D$（第\ref{ch:ch09_damping}章, $k_D\approx0.14$~Mpc$^{-1}$）と
+可視度幅により、$\ell\gtrsim1000$ で指数的に減衰する。本書は偏光を無視するため減衰
+係数が $16/15$（偏光込みは $8/9$）で、CLASS 比で減衰尾が数〜十数% 高い
+（第\ref{ch:ch14_numerics}章・付録E）。
+
 \subsection{総合図解}
-% TODO(WP5): 12.5 の本文。
+図 F11.1 / F5.1 の $\mathcal D_\ell$ に上記を重ねると、低 $\ell$ プラトー（SW＋late ISW）、
+第一ピーク（音響圧縮＋early ISW）、奇偶非対称、減衰尾、という全要素が一望できる。
+ピーク位置・SW プラトー・$k_D$ はいずれも独立な解析公式（NB7）と数値が整合する。
 
+\paragraph{まとめ}
+$\ell_A,\phi_m$ でピーク位置、$R$ で奇偶非対称、SW＋ISW で低 $\ell$、$k_D$ で減衰尾、と
+スペクトルの全特徴を要素分解した。
 
-\paragraph{導出契約}
-本章の導出契約: S12.1。各契約は「入力式→出力式」を中間ステップ省略なし
-（1ステップ＝学部4年生が5分で検算可能）で履行する。\emph{本文プローズは WP5 で執筆。}
-
-\paragraph{まとめ・チェックリスト・演習}
-% TODO(WP5): 章末まとめ、チェックリスト、演習 3–6 問（うち1問は対応 NB の課題）。
+\paragraph{演習}
+(1) $\ell_1=(1-\phi_1)\ell_A$ に数値を入れ $\ell_1$ を求めよ。
+(2) NB5 で第二/第一ピーク高比 $H_2/H_1$ を測り $\Omega_bh^2$ 依存を論ぜよ。
+(3) late ISW が効く $\ell$ 範囲を $\Lambda$ 優勢開始時刻から見積もれ。

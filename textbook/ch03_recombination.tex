@@ -1,30 +1,102 @@
-% 第3章 再結合とCMBの誕生（WP5 skeleton; 本文・導出は執筆予定）
+% 第3章 再結合とCMBの誕生
 \section{再結合とCMBの誕生}
 \label{ch:ch03_recombination}
 
 \paragraph{この章で導くこと（入力→出力）}
-電離度 $X_e(a)$ を Saha→Peebles で計算し、$\tau,\tilde g$ を定義して最終散乱面を数式として確立する。
+平衡統計力学（入力）から電離度 $X_e(a)$ を Saha 方程式で求め、平衡が破れる領域で
+Peebles の速度方程式（出力 S3.1, S3.2）に切り替える。これを用いて光学的厚み
+$\tau(\eta)$ と可視度関数 $\tilde g(\eta)$ を定義し（出力 S3.3）、最終散乱面を
+「散乱確率分布のピーク」として数式で確立する。本章で本書の縦糸 $\tau,\tilde g$ が
+完成し、第\ref{ch:ch10_los}章の視線積分の重みになる。
 
-% --- 節構成（01_textbook_spec.md より）-------------------------------------
 \subsection{水素再結合の素過程}
-% TODO(WP5): 3.1 の本文。
-\subsection{Saha方程式（契約 S3.1）}
-% TODO(WP5): 3.2 の本文。
-\subsection{Peebles方程式（契約 S3.2）}
-% TODO(WP5): 3.3 の本文。
-\subsection{光学的厚みと可視度関数（契約 S3.3）}
-% TODO(WP5): 3.4 の本文。
-\subsection{数値結果（Saha vs Peebles, $z_*\approx1090$, $\Delta z\approx80$）}
-% TODO(WP5): 3.5 の本文。
-\subsection{再電離の予告（$z_{\rm re}\sim8$, $\tau\approx0.05$）}
-% TODO(WP5): 3.6 の本文。
-\subsection{光子平均自由行程の発散と脱結合}
-% TODO(WP5): 3.7 の本文。
+$T\sim 0.3$~eV まで冷えると陽子と電子が結合して中性水素を作る。基底状態への直接
+再結合は $13.6$~eV のイオン化光子を放出し、それが別の原子を再電離するため正味の
+再結合に寄与しない。実効的な再結合は (i) $2s\to1s$ の二光子崩壊
+（$\Lambda_{2s\to1s}=8.227~\mathrm{s^{-1}}$）と (ii) Ly$\alpha$ 光子の宇宙膨張に
+よる赤方偏移脱出、の二経路で進む。この二経路が Peebles 係数 $C_r$（\S3.3）に入る。
 
+\subsection{Saha 方程式（導出契約 S3.1）}
+化学平衡 $e^-+p\leftrightarrow H+\gamma$ では $\mu_e+\mu_p=\mu_H$ が成り立つ。
+非相対論的数密度
+$n_i=g_i\left(\frac{m_ik_BT}{2\pi\hbar^2}\right)^{3/2}e^{(\mu_i-m_ic^2)/k_BT}$
+を代入し、$g_e=g_p=2,\ g_H=4$、結合エネルギー $\epsilon_0=13.6$~eV を用いると、
+$X_e\equiv n_e/n_H$ について
+\begin{equation}
+  \frac{X_e^2}{1-X_e}=\frac{1}{n_b}\left(\frac{m_ek_BT_b}{2\pi\hbar^2}\right)^{3/2}
+  e^{-\epsilon_0/k_BT_b},
+  \label{eq:saha}
+\end{equation}
+を得る（$Y_p=0$ で $n_b=n_H$）。これは平衡が成り立つ限り厳密で、$X_e$ が
+$1\to0$ へ急落する様子を与える。
 
-\paragraph{導出契約}
-本章の導出契約: S3.1–S3.3。各契約は「入力式→出力式」を中間ステップ省略なし
-（1ステップ＝学部4年生が5分で検算可能）で履行する。\emph{本文プローズは WP5 で執筆。}
+\begin{numreality}
+式\eqref{eq:saha} は \texttt{cmbcore.recombination.\_saha\_Xe} に実装。二次方程式は
+桁落ちを避ける形 $X_e=2/(1+\sqrt{1+4/y})$（$y$ は右辺）で解く。
+\end{numreality}
 
-\paragraph{まとめ・チェックリスト・演習}
-% TODO(WP5): 章末まとめ、チェックリスト、演習 3–6 問（うち1問は対応 NB の課題）。
+\subsection{Peebles 方程式（導出契約 S3.2）}
+Saha は\emph{平衡}を仮定するが、再結合が膨張に追いつかなくなると平衡が破れる。
+三準位原子モデル（基底・第一励起・連続）で実効的再結合を扱うと、$X_e\le0.99$ 以降は
+\begin{equation}
+  \frac{dX_e}{dx}=\frac{C_r(T_b)}{H}\Big[\beta(T_b)(1-X_e)-n_H\alpha^{(2)}(T_b)X_e^2\Big],
+  \label{eq:peebles}
+\end{equation}
+\begin{equation}
+  C_r=\frac{\Lambda_{2s\to1s}+\Lambda_\alpha}{\Lambda_{2s\to1s}+\Lambda_\alpha+\beta^{(2)}},
+  \quad
+  \alpha^{(2)}=\frac{8}{\sqrt{3\pi}}\sigma_Tc\sqrt{\tfrac{\epsilon_0}{k_BT_b}}\,\phi_2,
+\end{equation}
+で与えられる（$\phi_2=0.448\ln(\epsilon_0/k_BT_b)$、$\beta=\alpha^{(2)}
+(m_ek_BT_b/2\pi\hbar^2)^{3/2}e^{-\epsilon_0/k_BT_b}$、
+$\beta^{(2)}=\beta\,e^{3\epsilon_0/4k_BT_b}$）。$C_r$ は「二光子崩壊＋Ly$\alpha$脱出」と
+「光イオン化」の競合を表す律速因子で、完全導出は付録Dに置く。
+
+\subsection{光学的厚みと可視度関数（導出契約 S3.3）}
+Thomson 散乱の光学的厚みは観測者（$x=0$）からさかのぼって
+\begin{equation}
+  \tau'\equiv\frac{d\tau}{dx}=-\frac{c\,n_e\sigma_T}{H},\quad n_e=X_en_H,\qquad
+  \tau(x)=\int_x^{0}\frac{c\,n_e\sigma_T}{H}\,dx',
+\end{equation}
+可視度関数は $\tilde g(x)\equiv-\tau'e^{-\tau}$ で定義される。$\tilde g$ は
+「光子が最後に散乱された時刻の確率密度」であり、規格化
+\begin{equation}
+  \int_{-\infty}^{0}\tilde g\,dx=\int_0^{\infty}e^{-\tau}\,d\tau
+  =\big[-e^{-\tau}\big]_0^\infty=1,
+\end{equation}
+を満たす（$\tau(0)=0,\ \tau(-\infty)=\infty$）。この $\tilde g$ が第\ref{ch:ch10_los}章の
+視線積分でソース関数の重みになる。
+
+\subsection{数値結果}
+\texttt{cmbcore} の fiducial 計算では、Saha と Peebles は $X_e\sim0.9$ までほぼ一致し、
+その後 Peebles 解が緩やかな freeze-out を与える。$\tau(x_*)=1$ で定義する最終散乱は
+\begin{equation}
+  z_*\approx 1082,\qquad \tilde g\ \text{の半値幅}\ \Delta z\approx 80,
+\end{equation}
+であり（図 F2.1--F2.3）、最終散乱が有限の「厚み」を持つことが第\ref{ch:ch09_damping}章の
+拡散減衰と第\ref{ch:ch10_los}章の積分のぼかしに効く。
+
+\begin{intuition}
+$\tilde g$ が鋭いピークを持つので、CMB は実質的に「ひとつの面（最終散乱面）」の
+スナップショットとみなせる。だが幅 $\Delta z\approx80$ のぼかしがあるため、面より
+小さい角度スケール（高 $\ell$）の情報は平均化されて失われる。
+\end{intuition}
+
+\subsection{再電離の予告と平均自由行程}
+$z_{\rm re}\sim8$ で銀河・クェーサーが宇宙を再電離し $X_e\to1$ に戻る。これは
+$\tau$ に $\tau_{\rm re}\approx0.05$ を上乗せし、第\ref{ch:ch13_params}章で扱う
+$e^{-2\tau}$ 抑制を生む（\texttt{cmbcore} の tanh 再電離フックで再現）。再結合後は
+$n_e$ が激減し光子平均自由行程 $\lambda_{\rm mfp}=1/(n_e\sigma_T a)$ が発散的に伸びる。
+これが「脱結合」＝光子が自由伝播を始める瞬間の定義である。
+
+\paragraph{まとめ・チェックリスト}
+\begin{itemize}
+  \item Saha\eqref{eq:saha} → Peebles\eqref{eq:peebles} の切替で $X_e(x)$ を得た。
+  \item $\tau,\tilde g$ を定義し $\int\tilde g\,dx=1$ を示した。
+  \item 数値: $z_*\approx1082$, $\Delta z\approx80$（\texttt{values.json} 由来）。
+\end{itemize}
+
+\paragraph{演習}
+(1) Saha 式から $z_*$ の $\Omega_bh^2$ 依存を概算せよ。
+(2) $\int\tilde g\,dx=1$ を境界条件から示せ。
+(3) NB2 で $\Omega_b$ を変え freeze-out 電離度 $X_e(\text{今})$ の依存を調べよ。

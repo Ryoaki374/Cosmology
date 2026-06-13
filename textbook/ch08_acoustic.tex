@@ -1,26 +1,65 @@
-% 第8章 強結合極限と音響振動（WP5 skeleton; 本文・導出は執筆予定）
+% 第8章 強結合極限と音響振動
 \section{強結合極限と音響振動}
 \label{ch:ch08_acoustic}
 
 \paragraph{この章で導くこと（入力→出力）}
-強結合極限で階層を $\Theta_0,\Theta_1$ に縮約し、強制振動子方程式と WKB 解を導く。
+$|\tau'|\gg ck/\mathcal H,1$ の強結合極限で光子階層を $\Theta_0,\Theta_1$ に縮約し
+（入力）、強制振動子方程式と WKB 解を導いて（出力 S8.1--S8.3）音響振動を解析的に
+理解する。これがピーク構造（第\ref{ch:ch12_peaks}章）と数値実装の tight coupling
+（第\ref{ch:ch14_numerics}章）の基礎になる。
 
-% --- 節構成（01_textbook_spec.md より）-------------------------------------
 \subsection{強結合展開}
-% TODO(WP5): 8.1 の本文。
-\subsection{光子バリオン流体の振動子方程式（契約 S8.1）}
-% TODO(WP5): 8.2 の本文。
-\subsection{WKB解と音地平線（契約 S8.2）}
-% TODO(WP5): 8.3 の本文。
-\subsection{重力駆動とポテンシャル減衰（契約 S8.3）}
-% TODO(WP5): 8.4 の本文。
+$1/\tau'$ 展開の0次で衝突項が支配し、$\Theta_1=-v_b/3$（光子とバリオンが共動）、
+$\Theta_{\ell\ge2}\to0$。1次補正で
+\begin{equation}
+  \Theta_2=-\frac{20}{45}\frac{ck}{\mathcal H\tau'}\Theta_1,
+\end{equation}
+が現れ（第\ref{ch:ch09_damping}章の粘性の種）、高次の $\Theta_\ell$ は漸化式で代数的に
+与えられる。数値実装ではこの代数閉包を tight coupling 近似として用いる。
+
+\subsection{光子バリオン流体の振動子方程式（導出契約 S8.1）}
+$\Theta_0,\Theta_1$ の2本を連立し $\Theta_1$ を消去すると、強制減衰振動子
+\begin{equation}
+  \Theta_0''+\frac{R}{1+R}\frac{\mathcal H'}{\mathcal H}\Theta_0'
+  +c_s^2\frac{c^2k^2}{\mathcal H^2}\Theta_0=F[\Phi,\Psi],\qquad
+  c_s^2=\frac{1}{3(1+R)},
+  \label{eq:osc}
+\end{equation}
+を得る。ここで $R\equiv\frac{3\rho_b}{4\rho_\gamma}$ はバリオン光子比、$c_s$ は音速。
+
+\begin{numreality}
+\textbf{記号の注意}: 解析の $R=3\rho_b/4\rho_\gamma$ と、数値実装の結合係数
+$R_{\rm code}=4\Omega_{\gamma0}/(3\Omega_{b0}a)=1/R$ は\emph{逆数}である
+（`03` §2.3, 第\ref{ch:ch06_boltzmann}章）。本書では音速の文脈で $R_s\equiv R$、
+バリオン方程式の結合で $R_{\rm code}$ と区別して書く。
+\end{numreality}
+
+\subsection{WKB 解と音地平線（導出契約 S8.2）}
+$R$ がゆっくり変わるとして式\eqref{eq:osc} を WKB で解くと
+\begin{equation}
+  \Theta_0(\eta)+\big(1+R\big)\Psi\simeq\big[\Theta_0(0)+(1+R)\Psi\big]\cos\!\big(kr_s\big),
+  \qquad r_s(\eta)=\int_0^\eta c_s\,d\eta',
+\end{equation}
+となる。振動はゼロ点が $-(1+R)\Psi$ だけ下方シフトし（\textbf{バリオン荷重}）、
+圧縮側（奇数ピーク）が強められる（第\ref{ch:ch12_peaks}章の奇偶非対称）。
+音地平線 $r_s$ が音響スケール $\ell_A=\pi\chi_*/r_s^*$ を決める。
+
+\subsection{重力駆動とポテンシャル減衰（導出契約 S8.3）}
+放射優勢期に地平線進入したモードでは $\Phi$ が減衰し（放射優勢解
+$\Phi\propto j_1(y)/y,\ y=k\eta/\sqrt3$）、これが振動子\eqref{eq:osc} を共鳴的に駆動して
+振幅を増幅する（\textbf{radiation driving}）。初期振幅 $\sim0.5$ のモードがピーク付近で
+$\sim1.5$ に育つのはこの効果である。
+
 \subsection{数値との突き合わせ}
-% TODO(WP5): 8.5 の本文。
+NB3/NB7 で WKB 解とフル数値解を重ね描きすると、tight coupling が成立する範囲
+（イオン化度と重ねて確認）で両者がよく一致し、切替点で解が連続（跳び $<1\%$）で
+あることを確かめられる。
 
+\paragraph{まとめ}
+強結合で振動子方程式\eqref{eq:osc} を導き、WKB 解からバリオン荷重と音地平線、
+radiation driving を解析的に理解した。
 
-\paragraph{導出契約}
-本章の導出契約: S8.1–S8.3。各契約は「入力式→出力式」を中間ステップ省略なし
-（1ステップ＝学部4年生が5分で検算可能）で履行する。\emph{本文プローズは WP5 で執筆。}
-
-\paragraph{まとめ・チェックリスト・演習}
-% TODO(WP5): 章末まとめ、チェックリスト、演習 3–6 問（うち1問は対応 NB の課題）。
+\paragraph{演習}
+(1) $\Theta_1=-v_b/3$ を0次強結合から示せ。
+(2) 式\eqref{eq:osc} のゼロ点シフト $-(1+R)\Psi$ を導け。
+(3) NB7 で WKB とフル数値の位相が合うことを確認せよ。

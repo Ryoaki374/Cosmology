@@ -1,24 +1,83 @@
-% 第10章 自由伝播と視線積分（WP5 skeleton; 本文・導出は執筆予定）
+% 第10章 自由伝播と視線積分
 \section{自由伝播と視線積分}
 \label{ch:ch10_los}
 
 \paragraph{この章で導くこと（入力→出力）}
-line-of-sight 形式解を導き、ソース関数を SW・Doppler・ISW・四重極補正に分解する。
+ボルツマン方程式（入力）の形式解＝視線（line-of-sight）積分を導き、ソース関数を
+SW・ISW・Doppler・四重極補正の4項に分解する（出力 S10.1--S10.3）。これにより
+「最終散乱面のスナップショット＋道中の積分効果」という描像が数式になり、
+第\ref{ch:ch11_cl}章の $C_\ell$ 公式の被積分核 $\Theta_\ell(k)$ が定まる。
 
-% --- 節構成（01_textbook_spec.md より）-------------------------------------
-\subsection{形式解の導出（契約 S10.1）}
-% TODO(WP5): 10.1 の本文。
-\subsection{$\mu$ 部分積分と $j_\ell$ の出現（契約 S10.2）}
-% TODO(WP5): 10.2 の本文。
-\subsection{ソース関数の物理（4項）}
-% TODO(WP5): 10.3 の本文。
-\subsection{瞬間再結合極限と Sachs-Wolfe（契約 S10.3）}
-% TODO(WP5): 10.4 の本文。
+\subsection{形式解（導出契約 S10.1）}
+第\ref{ch:ch06_boltzmann}章の光子方程式は、$\mu=\hat k\cdot\hat p$ として
+\begin{equation}
+  \Theta'+\frac{ck\mu}{\mathcal H}\Theta
+  =-\Phi'-\frac{ck\mu}{\mathcal H}\Psi-\tau'\big[\Theta_0-\Theta+\mu v_b-\tfrac12 P_2(\mu)\Theta_2\big],
+\end{equation}
+と書ける。左辺を積分因子 $e^{ik\mu(\eta-\eta_0)-\tau}$ でまとめると厳密解
+\begin{equation}
+  \Theta(\eta_0,k,\mu)=\int_{-\infty}^{0}\tilde S(k,x)\,e^{ik\mu(\eta(x)-\eta_0)}\,dx,
+\end{equation}
+を得る（$\tilde S$ は下記）。観測されるのは $\mu$ 方向の多重極だから、次に $\mu$ 依存を
+ベッセル関数に変換する。
 
+\subsection{$\mu$ の部分積分と $j_\ell$ の出現（導出契約 S10.2）}
+平面波の Rayleigh 展開 $e^{ik\mu\Delta\eta}=\sum_\ell(2\ell+1)i^\ell P_\ell(\mu)
+j_\ell(k\Delta\eta)$ を使い、$\mu$ の冪を $\frac{1}{ik}\frac{d}{d\Delta\eta}$ への
+置換（部分積分）で吸収すると、温度多重極は
+\begin{equation}
+  \boxed{\ \Theta_\ell(\eta_0,k)=\int_{-\infty}^{0}\tilde S(k,x)\,
+  j_\ell\big[k(\eta_0-\eta(x))\big]\,dx\ }
+  \label{eq:los}
+\end{equation}
+となる。$j_\ell[k(\eta_0-\eta)]$ は「波数 $k$ の擾乱を角度スケール $\ell$ へ射影する核」
+であり、$\ell\approx k(\eta_0-\eta_*)=k\chi_*$ のとき最大の寄与を与える。
 
-\paragraph{導出契約}
-本章の導出契約: S10.1–S10.3。各契約は「入力式→出力式」を中間ステップ省略なし
-（1ステップ＝学部4年生が5分で検算可能）で履行する。\emph{本文プローズは WP5 で執筆。}
+\subsection{ソース関数の物理}
+4項に分解されたソース関数は（偏光なし $\Pi=\Theta_2$）
+\begin{align}
+  \tilde S(k,x)=&\ \underbrace{\tilde g\Big[\Theta_0+\Psi+\tfrac14\Theta_2\Big]}_{\text{SW（実効温度）}}
+  +\underbrace{e^{-\tau}\big[\Psi'-\Phi'\big]}_{\text{ISW}} \notag\\
+  &-\underbrace{\frac{1}{ck}\frac{d}{dx}\big(\mathcal H\tilde g\,v_b\big)}_{\text{Doppler}}
+  +\underbrace{\frac{3}{4c^2k^2}\frac{d}{dx}\!\Big[\mathcal H\frac{d}{dx}\big(\mathcal H\tilde g\,\Theta_2\big)\Big]}_{\text{四重極補正}}.
+  \label{eq:source}
+\end{align}
+\begin{itemize}
+  \item \textbf{SW項}: $\tilde g$ が最終散乱面に重みを与え、そこでの\emph{実効温度}
+  $\Theta_0+\Psi$ を射影する。$\Psi$ はポテンシャル井戸からの脱出赤方偏移。
+  \item \textbf{ISW項}: $e^{-\tau}$（再結合後はほぼ1）と $\Psi'-\Phi'$ の積。道中で
+  ポテンシャルが時間変化すると光子が正味のエネルギーを得る（第\ref{ch:ch12_peaks}章）。
+  \item \textbf{Doppler項}: バリオン速度 $v_b$ の視線方向成分。
+  \item \textbf{四重極補正}: 偏光を無視した近似での残差項。
+\end{itemize}
 
-\paragraph{まとめ・チェックリスト・演習}
-% TODO(WP5): 章末まとめ、チェックリスト、演習 3–6 問（うち1問は対応 NB の課題）。
+\begin{numreality}
+式\eqref{eq:source} は \texttt{cmbcore.spectrum.\_source} に4項個別に実装され、
+微分はスプライン経由で評価される。式\eqref{eq:los} の数値積分には注意が必要で、
+$\Theta_\ell(k)$ は $k$ について周期 $\sim2\pi/\chi_*$ で急速振動する。そこで
+\textbf{ソース $\tilde S(k,x)$ を粗い $k$ で解いて $k$ 方向にスプライン補間し、
+細かい $k$ グリッドで式\eqref{eq:los} を実行}する（CLASS/CAMB と同じ手法、
+第\ref{ch:ch14_numerics}章）。
+\end{numreality}
+
+\subsection{瞬間再結合極限と Sachs-Wolfe（導出契約 S10.3）}
+$\tilde g\to\delta(x-x_*)$ の極限で SW 項は
+$\Theta_\ell\simeq[\Theta_0+\Psi](x_*)\,j_\ell(k\chi_*)$ となる。超地平線・物質優勢では
+第\ref{ch:ch07_initial}章の初期条件と組み合わせて
+\begin{equation}
+  \Theta_0+\Psi=\tfrac13\Psi,
+\end{equation}
+すなわち「温度ゆらぎはポテンシャルの $1/3$」という有名な Sachs-Wolfe 公式を得る。
+これが低 $\ell$ プラトーの解析的基礎（第\ref{ch:ch12_peaks}章）になる。
+
+\paragraph{まとめ・チェックリスト}
+\begin{itemize}
+  \item 形式解→部分積分で式\eqref{eq:los}（$\Theta_\ell=\int\tilde S\,j_\ell\,dx$）を導いた。
+  \item ソースを SW/ISW/Doppler/四重極の4項に分解した\eqref{eq:source}。
+  \item 数値核 $\Theta_\ell(k)$ の急速 $k$ 振動と、その解像法を明示した。
+\end{itemize}
+
+\paragraph{演習}
+(1) Rayleigh 展開から式\eqref{eq:los} を $\ell=2$ について書き下せ。
+(2) NB4 でソース4項を分解し、各項が効く $x$ 領域を読み取れ。
+(3) SW 極限 $\Theta_0+\Psi=\Psi/3$ を初期条件から確認せよ。
