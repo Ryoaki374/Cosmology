@@ -1,0 +1,59 @@
+% 第2章 熱平衡宇宙の熱史（仕様 01_textbook_spec.md §第2章）
+\section{熱平衡宇宙の熱史}
+\label{ch:thermal}
+
+\paragraph{この章で導くこと（入力→出力）}
+平衡統計力学を膨張宇宙に適用し、$T\propto1/a$ の黒体放射、ニュートリノ脱結合と
+$T_\nu/T_\gamma=(4/11)^{1/3}$（契約 S2.1）、相互作用率 vs 膨張率による脱結合基準を
+確立する。CMB が黒体である理由をここで完結させる。
+
+\subsection{分布関数と熱力学量}
+平衡分布 $f(\mathbf p)=[\exp((E-\mu)/k_BT)\mp1]^{-1}$（上：Bose、下：Fermi）から
+数密度・エネルギー密度・圧力を運動量積分で得る。相対論的極限では
+$\rho\propto g_* T^4$、非相対論極限では Boltzmann 抑制 $\propto e^{-m/T}$ となる。
+
+\subsection{膨張宇宙での平衡維持条件}
+相互作用率 $\Gamma=n\langle\sigma v\rangle$ と膨張率 $H$ の比較で脱結合を判定する。
+$\Gamma\gtrsim H$ で平衡、$\Gamma\lesssim H$ で脱結合（フリーズアウト）。
+
+\begin{intuition}
+「反応が1膨張時間に1回以上起きるか」が平衡維持の目安である。膨張が反応に
+追いつくと粒子は相互作用を失い、共動数密度が凍結する。
+\end{intuition}
+
+\subsection{エントロピー保存と $T(a)$}
+共動エントロピー $s\,a^3=$ const から $g_{*s}T^3a^3=$ const。$g_{*s}$ が一定の間は
+$T\propto1/a$。
+
+\subsection{ニュートリノ脱結合（導出契約 S2.1）}
+$e^+e^-$ 対消滅が光子のみを加熱するため、エントロピー保存から
+\begin{equation}
+  \frac{T_\nu}{T_\gamma}=\left(\frac{4}{11}\right)^{1/3},\qquad
+  \Omega_{\nu0}=N_{\rm eff}\,\frac{7}{8}\left(\frac{4}{11}\right)^{4/3}\Omega_{\gamma0}.
+  \label{eq:Tnu}
+\end{equation}
+
+\begin{advanced}
+$N_{\rm eff}=3.046$ の $0.046$ は、脱結合が瞬間的でなく $e^+e^-$ 消滅と一部
+重なるための補正である。本書の主筋では質量ゼロ・$N_{\rm eff}=3.046$ を用いる。
+\end{advanced}
+
+\subsection{黒体性の維持（導出契約 S2.3）}
+Liouville 方程式により、無衝突自由膨張下で位相空間分布 $f(p)$ は不変に保たれる。
+プランク分布は $f=[\exp(pc/k_BT)-1]^{-1}$ の形を $T\propto1/a$ のもとで保つため、
+CMB は冷えても黒体であり続ける（FIRAS の観測と整合）。
+
+\subsection{トムソン散乱とコンプトン散乱}
+微分断面積 $\frac{d\sigma_T}{d\Omega}=\frac{3\sigma_T}{16\pi}(1+\cos^2\theta)$。
+再結合期では $h\nu\ll m_ec^2$ ゆえエネルギー移行は $O(h\nu/m_ec^2)$ に抑制され、
+散乱は光子の\emph{方向のみ}を変える。これが第\ref{ch:thermal}章のボルツマン衝突項
+の物理的基礎となる。
+
+\paragraph{まとめ}
+熱史の登場人物（計量・光子・ニュートリノ・バリオン・CDM・$\Lambda$）が確定し、
+光子は黒体、再結合期の散乱は方向変化のみ、という第II部への前提が揃った。
+
+\paragraph{演習}
+(1) $\Omega_{\gamma0}h^2$ を $T_{\rm CMB}$ から数値導出せよ（契約 S2.2）。
+(2) $T_\nu/T_\gamma$ をエントロピー保存から導け。
+(3) トムソン極限の妥当性を再結合期の典型光子エネルギーで数値確認せよ。

@@ -1,0 +1,32 @@
+% ゼロから構成するCMBパワースペクトル — 本文（WP5 skeleton）
+% Build: latexmk -lualatex main.tex  (requires jlreq or fallback to article)
+\documentclass[11pt]{article}
+
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{a4paper,margin=25mm}
+\usepackage[hidelinks]{hyperref}
+\usepackage{cleveref}
+
+% --- three pedagogical boxes (00_README §3.3) -------------------------------
+\usepackage[most]{tcolorbox}
+\newtcolorbox{intuition}{colback=blue!5,colframe=blue!50,title=【物理的直観】}
+\newtcolorbox{numreality}{colback=orange!5,colframe=orange!60,title=【数値の現実】}
+\newtcolorbox{advanced}{colback=gray!8,colframe=gray!50,title=【発展（読み飛ばし可）】}
+
+\title{ゼロから構成するCMBパワースペクトル\\
+\large 最小構成によるFLRWから $C_\ell$ までの自己完結的導出}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\input{ch01_introduction}
+\input{ch02_thermal_history}
+% \input{ch03_compton}           % WP5
+% ... chapters 4-14 + appendices (see specs/01_textbook_spec.md)
+
+\end{document}

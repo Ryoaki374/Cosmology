@@ -1,0 +1,91 @@
+% 第1章 FLRW計量と膨張宇宙（仕様 01_textbook_spec.md §第1章）
+\section{FLRW計量と膨張宇宙}
+\label{ch:flrw}
+
+\paragraph{この章で導くこと（入力→出力）}
+一様等方性の仮定（入力）から FLRW 計量を書き下し、Einstein 方程式から
+Friedmann 方程式（出力 S1.1）を導く。連続の式から各成分のスケーリング
+（S1.2）、ヌル測地線から赤方偏移 $1+z=1/a$（S1.3）を得て、
+$\Lambda$CDM 背景の $\mathcal H(x)$ と共形時間 $\eta(x)$（S1.4）を計算可能にする。
+最終的に、$C_\ell$ の射影で用いる共動角径距離 $\chi(z_*)$ を数値評価する。
+
+\subsection{宇宙原理と観測的根拠}
+CMB の温度等方性は $\Delta T/T \sim 10^{-5}$ であり、これが本書全体の出発点
+である「一様等方な背景＋微小摂動」という描像を正当化する。背景宇宙を本章で、
+摂動を第\ref{ch:flrw}章以降で扱う。
+
+\subsection{FLRW計量}
+最大対称な3次元空間を空間切断にもつ時空の計量は、計量符号 $(-,+,+,+)$ で
+\begin{equation}
+  \mathrm ds^2 = -c^2\,\mathrm dt^2
+  + a^2(t)\left[\frac{\mathrm dr^2}{1-k r^2}
+  + r^2\,\mathrm d\Omega^2\right],
+  \label{eq:flrw}
+\end{equation}
+と書ける。本書は主筋で平坦 $k=0$ を採り、曲率は第13章で復活させる。
+
+\subsection{赤方偏移}
+ヌル測地線に沿う光子の4元運動量は $p\propto 1/a$ を満たし（導出契約 S1.3）、
+観測される波長の伸びは
+\begin{equation}
+  1+z = \frac{a_0}{a} = \frac{1}{a},\qquad a_0\equiv 1 .
+\end{equation}
+
+\subsection{Friedmann方程式（導出契約 S1.1）}
+計量 \eqref{eq:flrw} の Christoffel 記号・Ricci テンソルを計算し（全成分は付録Aの表）、
+Einstein 方程式 $G_{\mu\nu}=\frac{8\pi G}{c^4}T_{\mu\nu}$ の $00$ 成分から
+\begin{equation}
+  H^2 \equiv \left(\frac{\dot a}{a}\right)^2
+  = \frac{8\pi G}{3}\rho - \frac{k c^2}{a^2},
+  \label{eq:friedmann}
+\end{equation}
+空間成分との組み合わせから加速度方程式
+$\ddot a/a = -\tfrac{4\pi G}{3}(\rho+3p/c^2)$ を得る。
+
+\begin{intuition}
+$H^2\propto\rho$ は「中身が多いほど速く膨張（または収縮）する」というニュートン
+的描像と一致する。曲率項 $-kc^2/a^2$ は全エネルギー（運動＋ポテンシャル）の
+符号に対応する。
+\end{intuition}
+
+\subsection{構成要素とスケーリング（導出契約 S1.2）}
+共変保存則 $\nabla_\mu T^{\mu\nu}=0$ の時間成分は連続の式
+$\dot\rho + 3H(\rho+p/c^2)=0$ を与え、状態方程式 $p=w\rho c^2$ に対し
+$\rho\propto a^{-3(1+w)}$、すなわち
+\begin{equation}
+  \rho_r\propto a^{-4},\quad \rho_m\propto a^{-3},\quad \rho_\Lambda=\text{const}.
+\end{equation}
+
+\subsection{共形ハッブルと共形時間（導出契約 S1.4）}
+$x\equiv\ln a$、$\mathcal H\equiv aH$ とすると、平坦宇宙で
+\begin{equation}
+  \mathcal H(x) = H_0\sqrt{\Omega_{m0}e^{-x}
+  + \Omega_{r0}e^{-2x} + \Omega_{\Lambda 0}e^{2x}},
+  \label{eq:Hp}
+\end{equation}
+共形時間（本書では長さ次元、$c$ 込み）は
+$\eta(x)=\int_{-\infty}^{x}\frac{c\,\mathrm dx'}{\mathcal H(x')}$。
+等密度は $a_{\rm eq}=\Omega_{r0}/\Omega_{m0}$、数値で
+$z_{\rm eq}\approx\input{|"python3 -c \"import json;print(int(json.load(open('../figures/values.json'))['z_eq']))\""}$
+（\texttt{values.json} 由来）。
+
+\begin{numreality}
+式 \eqref{eq:Hp} は \texttt{cmbcore.background.BackgroundCosmology.Hp} に
+そのまま実装されており、$\eta(x),t(x)$ は ODE を後退/前進積分して
+\texttt{CubicSpline} 化される。本章の全数値（$z_{\rm eq}$, $\eta_0$, $\chi(z_*)$）は
+\texttt{scripts/make\_values.py} が生成する \texttt{values.json} から差し込まれる。
+\end{numreality}
+
+\subsection{距離}
+共動距離 $\chi(x)=\eta_0-\eta(x)$。最終散乱面までの共動角径距離 $\chi(z_*)$ は
+$C_\ell$ の角度射影 $\ell\sim k\chi$ を決める基本量であり、本書の fiducial
+宇宙では $\chi(z_*)\approx 13.9$\,Gpc（第11章・第14章で使用）。
+
+\paragraph{まとめ}
+背景宇宙は $\mathcal H(x)$ ひとつで記述され、そこから $\eta,\chi,z_{\rm eq}$ が
+すべて計算できる。次章ではこの背景上で熱史を組み立てる。
+
+\paragraph{演習}
+(1) 物質優勢で $\eta\propto a^{1/2}$ を示せ。
+(2) $z_{\rm eq}$ の $\Omega_m h^2$ 依存を求めよ。
+(3) NB1 で $\Omega_\Lambda$ を変え $\eta_0$ の変化を調べよ。
