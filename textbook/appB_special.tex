@@ -1,7 +1,29 @@
-% 付録B 特殊関数公式集（WP5 skeleton）
+% 付録B 特殊関数公式集
 \section*{付録B\quad 特殊関数公式集}
 \addcontentsline{toc}{section}{付録B\quad 特殊関数公式集}
 
-Legendre展開・直交性、Rayleigh展開、$j_\ell$ 漸化式・漸近形、$\int_0^\infty j_\ell^2(u)\,du/u=1/[2\ell(\ell+1)]$ の証明。
+\paragraph{Legendre 多項式}
+直交性 $\int_{-1}^{1}P_\ell(\mu)P_{\ell'}(\mu)\,d\mu=\frac{2}{2\ell+1}\delta_{\ell\ell'}$。
+本書の多重極展開 $\Theta(\mu)=\sum_\ell(-i)^\ell(2\ell+1)P_\ell(\mu)\Theta_\ell$ は
+$\Theta_\ell=\frac{i^\ell}{2}\int_{-1}^1 P_\ell(\mu)\Theta(\mu)\,d\mu$ と逆変換される。
 
-% TODO(WP5): 本文。
+\paragraph{Rayleigh（平面波）展開}
+\begin{equation}
+  e^{ik\mu r}=\sum_{\ell=0}^{\infty}(2\ell+1)i^\ell P_\ell(\mu)\,j_\ell(kr).
+\end{equation}
+これが第\ref{ch:ch10_los}章の視線積分で $\mu$ 依存をベッセル関数に変換する核心。
+
+\paragraph{球ベッセル関数}
+漸化式 $j_{\ell-1}(x)+j_{\ell+1}(x)=\frac{2\ell+1}{x}j_\ell(x)$、漸近形
+$j_\ell(x)\to\frac{1}{x}\sin(x-\ell\pi/2)$（$x\gg\ell$）、$j_\ell(x)\approx
+\frac{x^\ell}{(2\ell+1)!!}$（$x\ll\ell$、指数的に小）。後者から $\Theta_\ell(k)$ は
+$k\chi_*\lesssim\ell$ で抑制され、$\ell\approx k\chi_*$ が主寄与となる。
+
+\paragraph{SW プラトーで使う積分（第\ref{ch:ch12_peaks}章 S12.1）}
+\begin{equation}
+  \int_0^\infty j_\ell^2(u)\,\frac{du}{u}=\frac{1}{2\ell(\ell+1)}.
+\end{equation}
+\textit{略証}: $\int_0^\infty j_\ell(u)j_{\ell'}(u)\frac{du}{u}
+=\frac{\delta_{\ell\ell'}}{2\ell(2\ell+1)}\cdot\frac{2\ell+1}{...}$ の閉形式から従う。
+スケール不変 $n_s=1$ のとき、$C_\ell\propto\int\frac{dk}{k}|\Theta_\ell|^2$ の SW 項に
+これを代入すると $\ell(\ell+1)C_\ell=$ 一定（低 $\ell$ プラトー）が得られる。

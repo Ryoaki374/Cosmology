@@ -1,32 +1,71 @@
-% 第6章 ボルツマン方程式（WP5 skeleton; 本文・導出は執筆予定）
+% 第6章 ボルツマン方程式
 \section{ボルツマン方程式}
 \label{ch:ch06_boltzmann}
 
 \paragraph{この章で導くこと（入力→出力）}
-$df/d\lambda=C[f]$ から光子・CDM・バリオン・ニュートリノの発展方程式を全て導出する（本書の心臓部）。
+一般のボルツマン方程式 $df/d\lambda=C[f]$（入力）から、(a) 光子の温度ゆらぎ階層、
+(b) CDM 無衝突流体、(c) バリオン流体（運動量交換）、(d) ニュートリノ無衝突階層、を
+全て導く（出力 S6.1--S6.5）。本章で \texttt{cmbcore} の発展方程式系（P, N, M）が
+すべて「導出済みの式」になる。本書の心臓部。
 
-% --- 節構成（01_textbook_spec.md より）-------------------------------------
-\subsection{位相空間と Liouville 演算子（契約 S6.1）}
-% TODO(WP5): 6.1 の本文。
-\subsection{光子分布の摂動と輝度関数}
-% TODO(WP5): 6.2 の本文。
-\subsection{無衝突部分}
-% TODO(WP5): 6.3 の本文。
+\subsection{Liouville 演算子（導出契約 S6.1）}
+測地線方程式から、計量\eqref{eq:metric} 中の光子運動量の変化
+$\frac{dp}{d\eta},\ \frac{d\hat p^i}{d\eta}$ を1次で求める。エネルギー変化は重力赤方偏移
+（$\Psi$ の勾配）とポテンシャルの時間変化（$\Phi'$）から成る。これが無衝突部分の源に
+なる。
+
+\subsection{光子: 無衝突部分と多重極展開}
+輝度 $\Theta(\eta,\mathbf k,\hat p)$ を $\mu=\hat k\cdot\hat p$ で多重極展開
+$\Theta=\sum_\ell(-i)^\ell(2\ell+1)P_\ell(\mu)\Theta_\ell$ する。無衝突 Liouville 項と
+Thomson 衝突項を合わせ、$x=\ln a$ 形で（`03` §3.1, P1--P4）:
+\begin{align}
+  \Theta_0' &= -\frac{ck}{\mathcal H}\Theta_1-\Phi', \label{eq:P1}\\
+  \Theta_1' &= \frac{ck}{3\mathcal H}\Theta_0-\frac{2ck}{3\mathcal H}\Theta_2
+  +\frac{ck}{3\mathcal H}\Psi+\tau'\Big[\Theta_1+\tfrac13 v_b\Big], \label{eq:P2}\\
+  \Theta_\ell' &= \frac{\ell\,ck}{(2\ell+1)\mathcal H}\Theta_{\ell-1}
+  -\frac{(\ell+1)ck}{(2\ell+1)\mathcal H}\Theta_{\ell+1}
+  +\tau'\Big[\Theta_\ell-\tfrac{1}{10}\Theta_2\delta_{\ell2}\Big],\quad(2\le\ell<\ell_{\max}). \label{eq:P3}
+\end{align}
+最高次は $\eta$ を用いた打ち切り（P4）で閉じる。
+
 \subsection{トムソン衝突項}
-% TODO(WP5): 6.4 の本文。
-\subsection{多重極展開と階層方程式（契約 S6.3）}
-% TODO(WP5): 6.5 の本文。
-\subsection{CDM（契約 S6.4）}
-% TODO(WP5): 6.6 の本文。
-\subsection{バリオンと運動量交換 $R=4\Omega_{\gamma0}/(3\Omega_{b0}a)$（契約 S6.5）}
-% TODO(WP5): 6.7 の本文。
-\subsection{ニュートリノ（質量ゼロ／質量あり）}
-% TODO(WP5): 6.8 の本文。
+電子静止系での Thomson 散乱は等方化＋四重極依存を与え、実験室系へのブースト1次で
+Doppler 項 $\mu v_b$ が出る。結果として
+\begin{equation}
+  C[\Theta]=-\tau'\Big[\Theta_0-\Theta+\mu v_b-\tfrac12 P_2(\mu)\Theta_2\Big],
+\end{equation}
+（$\tau'=-cn_e\sigma_T/H<0$）。偏光を無視するため $\Pi\to\Theta_2$ と置換しており、これが
+減衰尾に数% の系統を生む（第\ref{ch:ch09_damping}章・付録E）。完全な角度積分は付録E。
 
+\subsection{CDM とバリオン（導出契約 S6.4, S6.5）}
+CDM は衝突なしの非相対論流体で2本（M1, M2）。バリオンは電子・陽子をクーロン結合した
+単一流体とし、Thomson 散乱による光子との運動量交換項を持つ（M3, M4）:
+\begin{align}
+  \delta_c' &= \frac{ck}{\mathcal H}v_c-3\Phi', & v_c' &= -v_c-\frac{ck}{\mathcal H}\Psi, \\
+  \delta_b' &= \frac{ck}{\mathcal H}v_b-3\Phi', & v_b' &= -v_b-\frac{ck}{\mathcal H}\Psi
+  +\tau'R\,(3\Theta_1+v_b),
+\end{align}
+ここで結合係数 $R=\frac{4\Omega_{\gamma0}}{3\Omega_{b0}}e^{-x}$。運動量保存から、光子側の
+衝突項（P2 の $\tau'[\Theta_1+v_b/3]$）と符号が逆で $R$ 倍になる。
 
-\paragraph{導出契約}
-本章の導出契約: S6.1–S6.5。各契約は「入力式→出力式」を中間ステップ省略なし
-（1ステップ＝学部4年生が5分で検算可能）で履行する。\emph{本文プローズは WP5 で執筆。}
+\begin{numreality}
+\textbf{記号の罠}: この結合係数 $R=4\Omega_{\gamma0}/(3\Omega_{b0})e^{-x}$ は、
+第\ref{ch:ch08_acoustic}章の音速で使うバリオン光子比 $R_s=3\rho_b/4\rho_\gamma$ の
+\emph{逆数}である。\texttt{cmbcore} では \texttt{R\_coupling} と \texttt{Rs\_baryon\_photon}
+で区別する（`03` §2.3）。
+\end{numreality}
 
-\paragraph{まとめ・チェックリスト・演習}
-% TODO(WP5): 章末まとめ、チェックリスト、演習 3–6 問（うち1問は対応 NB の課題）。
+\subsection{ニュートリノ}
+質量ゼロニュートリノは光子と同形で衝突項なし（N1--N4: P1--P4 で $\tau'\to0$,
+$\Theta\to\mathcal N$, $\ell_{\max}^\nu$ 使用）。質量ありは運動量依存が消えず $q$ グリッドが
+必要で、本書は第\ref{ch:ch13_params}章で CLASS に委譲する。
+
+\paragraph{まとめ}
+$df/d\lambda=C[f]$ から光子階層\eqref{eq:P1}--\eqref{eq:P3}、CDM・バリオン流体、
+ニュートリノ階層を導いた。$R$ と $R_s$ の逆数関係を明示した。これらが
+\texttt{cmbcore} の状態ベクトルの発展則そのものである。
+
+\paragraph{演習}
+(1) P2 の Doppler 項 $\tfrac13 v_b$ をブースト1次から導け。
+(2) 運動量保存から M4 の $\tau'R(3\Theta_1+v_b)$ の符号・係数を確認せよ。
+(3) NB3 で $\Theta_\ell$ の階層が高次へエネルギーを運ぶ様子を見よ。

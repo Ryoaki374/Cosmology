@@ -1,7 +1,25 @@
-% 付録C ガウシアン確率場の統計（WP5 skeleton）
+% 付録C ガウシアン確率場の統計
 \section*{付録C\quad ガウシアン確率場の統計}
 \addcontentsline{toc}{section}{付録C\quad ガウシアン確率場の統計}
 
-実空間/調和空間、Wickの定理、推定量 $\hat C_\ell$ の分散。
+\paragraph{ガウシアン場と Wick の定理}
+原始ゆらぎ $\mathcal R(\mathbf k)$ が平均ゼロのガウシアンなら、奇数次相関は消え、
+偶数次は2点相関の積に分解する（Wick の定理）。例えば
+$\langle\mathcal R_1\mathcal R_2\mathcal R_3\mathcal R_4\rangle
+=\langle\mathcal R_1\mathcal R_2\rangle\langle\mathcal R_3\mathcal R_4\rangle+(\text{2 perm})$。
+したがって2点相関＝パワースペクトル $\mathcal P_\mathcal R$ が統計のすべてを決める。
 
-% TODO(WP5): 本文。
+\paragraph{調和空間}
+$a_{\ell m}=4\pi(-i)^\ell\int\frac{d^3k}{(2\pi)^3}\mathcal R(\mathbf k)
+\frac{\Theta_\ell}{\mathcal R}Y^*_{\ell m}(\hat k)$（第\ref{ch:ch11_cl}章）も、線形変換ゆえ
+ガウシアンで、$\langle a_{\ell m}a^*_{\ell'm'}\rangle=C_\ell\delta_{\ell\ell'}\delta_{mm'}$。
+
+\paragraph{推定量 $\hat C_\ell$ とその分散}
+観測者は $2\ell+1$ 個の $a_{\ell m}$ から $\hat C_\ell=\frac{1}{2\ell+1}\sum_m|a_{\ell m}|^2$
+を作る。ガウシアン性と Wick から $\langle\hat C_\ell\rangle=C_\ell$、
+\begin{equation}
+  \mathrm{Var}(\hat C_\ell)=\frac{2}{2\ell+1}C_\ell^2
+  \;\Rightarrow\;\frac{\Delta C_\ell}{C_\ell}=\sqrt{\frac{2}{2\ell+1}},
+\end{equation}
+が従う。これが cosmic variance（第\ref{ch:ch11_cl}章 S11.3）で、低 $\ell$ では理論と
+観測の比較における本質的な下限となる。

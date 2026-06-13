@@ -1,26 +1,68 @@
-% 第7章 初期条件と原始ゆらぎ（WP5 skeleton; 本文・導出は執筆予定）
+% 第7章 初期条件と原始ゆらぎ
 \section{初期条件と原始ゆらぎ}
 \label{ch:ch07_initial}
 
 \paragraph{この章で導くこと（入力→出力）}
-超地平線極限で断熱初期条件一式を導き、$\mathcal R$ 保存と規格化、原始スペクトルを確立する。
+超地平線極限で階層方程式系を整合的に解き、断熱初期条件一式を導く（出力 S7.1）。
+$\mathcal R$ の超地平線保存（S7.2）と規格化の論理を確立し、インフレーションを
+「$\mathcal P_\mathcal R(k)$ を与える機構」として最小限導入して $A_s,n_s$ の意味を確定する。
 
-% --- 節構成（01_textbook_spec.md より）-------------------------------------
-\subsection{超地平線極限での縮約}
-% TODO(WP5): 7.1 の本文。
-\subsection{断熱条件と全初期値（契約 S7.1）}
-% TODO(WP5): 7.2 の本文。
-\subsection{$\mathcal R$ の保存と規格化（契約 S7.2）}
-% TODO(WP5): 7.3 の本文。
+\subsection{超地平線極限}
+$ck/\mathcal H\to0$ では第\ref{ch:ch06_boltzmann}章の階層が大きく縮約し、各種ゆらぎが
+共通の振幅で結びつく。放射優勢期の超地平線解を求めると、断熱モード（全成分の
+エントロピーゆらぎがゼロ）が成長解として選ばれる。
+
+\subsection{断熱初期条件（導出契約 S7.1）}
+ニュートリノ分率 $f_\nu=\Omega_{\nu0}/(\Omega_{\gamma0}+\Omega_{\nu0})$ として、
+超地平線断熱解は（`03` §3.2）
+\begin{align}
+  \Psi &= -\frac{1}{\tfrac32+\tfrac25 f_\nu}, &
+  \Phi &= -\Big(1+\tfrac25 f_\nu\Big)\Psi, \\
+  \delta_c=\delta_b &= -\tfrac32\Psi, &
+  v_c=v_b &= -\frac{ck}{2\mathcal H}\Psi, \\
+  \Theta_0=\mathcal N_0 &= -\tfrac12\Psi, &
+  \Theta_1=\mathcal N_1 &= \frac{ck}{6\mathcal H}\Psi,
+\end{align}
+高次は $\Theta_2=-\frac{20ck}{45\mathcal H\tau'}\Theta_1$、
+$\mathcal N_2=-\frac{c^2k^2e^{2x}(\Phi+\Psi)}{12H_0^2\Omega_{\nu0}}$、以降漸化式で与える。
+ニュートリノ異方性応力（$f_\nu$）が $\Phi\ne-\Psi$ を生むことに注意。
+
+\begin{numreality}
+これらは \texttt{cmbcore.perturbations.\_initial\_conditions} に実装。積分は
+$ck/\mathcal H<10^{-3}$ かつ $|\tau'|>10^3\,ck/\mathcal H$ を満たす $x_{\rm start}$ から開始する。
+\end{numreality}
+
+\subsection{$\mathcal R$ の保存と規格化（導出契約 S7.2）}
+断熱摂動について、共動曲率ゆらぎ $\mathcal R$ は超地平線で保存する。$\S7.2$ の初期条件は
+\begin{equation}
+  \Psi_{\rm ini}=-\frac{1}{\tfrac32+\tfrac25 f_\nu}
+  =-\frac{2}{3}\,\frac{\mathcal R}{1+\tfrac{4}{15}f_\nu}\quad(\mathcal R=1),
+\end{equation}
+すなわち\textbf{$\mathcal R=1$ に規格化された}初期条件である。よって「$\Psi$ を適当に
+取って解き最後に $\mathcal R$ あたりに換算する」手続きは、本書では換算係数
+$\mathcal R_{\rm ini}=1$ となり、転送関数をそのまま $C_\ell$ 公式
+（第\ref{ch:ch11_cl}章）に入れてよい。
+
 \subsection{インフレーションの最小限}
-% TODO(WP5): 7.4 の本文。
-\subsection{ガウシアン確率場とパワースペクトル}
-% TODO(WP5): 7.5 の本文。
+de Sitter 近似でモード関数がホライズン交差で凍結し、ほぼスケール不変な原始スペクトル
+\begin{equation}
+  \mathcal P_\mathcal R(k)=A_s\Big(\frac{k}{k_{\rm pivot}}\Big)^{n_s-1},\qquad
+  k_{\rm pivot}=0.05~\mathrm{Mpc^{-1}},
+\end{equation}
+を与える（$n_s<1$ はスローロール）。本書はインフレーションの詳細導出は\textbf{発展}＋
+付録に委ね、「ほぼスケール不変・断熱・ガウシアン」の3性質を採用宣言として用いる。
 
+\subsection{ガウシアン確率場}
+原始ゆらぎはガウシアンで、$\langle\mathcal R(\mathbf k)\mathcal R^*(\mathbf k')\rangle
+=(2\pi)^3\delta^3(\mathbf k-\mathbf k')\frac{2\pi^2}{k^3}\mathcal P_\mathcal R(k)$ と規約を
+固定する。これが第\ref{ch:ch11_cl}章の $C_\ell$ 公式と cosmic variance の基礎になる。
 
-\paragraph{導出契約}
-本章の導出契約: S7.1–S7.2。各契約は「入力式→出力式」を中間ステップ省略なし
-（1ステップ＝学部4年生が5分で検算可能）で履行する。\emph{本文プローズは WP5 で執筆。}
+\paragraph{まとめ}
+断熱初期条件一式を $f_\nu$ 込みで導き、$\mathcal R=1$ 規格化を確立、原始スペクトル
+$\mathcal P_\mathcal R$ の3性質を採用した。これで第I--II部（背景・摂動・初期条件）が
+完結し、第III部の音響振動へ接続する。
 
-\paragraph{まとめ・チェックリスト・演習}
-% TODO(WP5): 章末まとめ、チェックリスト、演習 3–6 問（うち1問は対応 NB の課題）。
+\paragraph{演習}
+(1) 断熱条件から $\Theta_0=-\Psi/2$ を導け。
+(2) $f_\nu\to0$ で $\Phi=-\Psi$ となることを確認せよ。
+(3) $\Psi_{\rm ini}$ が $\mathcal R=1$ に対応することを示せ。

@@ -1,7 +1,33 @@
-% 付録E 偏光の最小限（WP5 skeleton）
+% 付録E 偏光の最小限
 \section*{付録E\quad 偏光の最小限}
 \addcontentsline{toc}{section}{付録E\quad 偏光の最小限}
 
-トムソン散乱の偏光依存性、四重極→直線偏光、E/B の定義、$\Pi=\Theta_2+\Theta_{P0}+\Theta_{P2}$ の由来、再電離 EE バンプ、TT 近似誤差（減衰尾係数 $16/15\to8/9$）。
+\paragraph{Thomson 散乱の偏光依存性}
+Thomson 散乱の微分断面積は $\frac{d\sigma}{d\Omega}\propto|\hat\epsilon\cdot\hat\epsilon'|^2$ で
+偏光に依存する。入射輻射が\textbf{四重極異方性}を持つとき、散乱光は正味の直線偏光を
+獲得する。よって最終散乱面での光子四重極 $\Theta_2$ が CMB 偏光の源である。
 
-% TODO(WP5): 本文。
+\paragraph{E/B モードと $\Pi$}
+天球上の直線偏光は、パリティ偶の $E$ モードと奇の $B$ モードに分解される。スカラー
+摂動は $E$ のみを生む（$B$ はテンソル/レンズ起源）。偏光を含めた散乱源は
+\begin{equation}
+  \Pi=\Theta_2+\Theta_{P0}+\Theta_{P2},
+\end{equation}
+で、$\Theta_{P}$ は偏光輝度の多重極。\textbf{本書は偏光を無視し $\Pi\to\Theta_2$ と
+置換}する（第\ref{ch:ch06_boltzmann}章, 第\ref{ch:ch10_los}章）。
+
+\paragraph{再電離 EE バンプ}
+再電離期（$z_{\rm re}\sim8$）に再び散乱が起こると、地平線スケール
+$\ell\sim\sqrt{z_{\rm re}}$ 程度の低 $\ell$ に EE 偏光のバンプが生じ、振幅は
+$\propto\tau^2$。これが TT の $A_se^{-2\tau}$ 縮退（第\ref{ch:ch13_params}章）を破り、
+$\tau$ を独立に測る鍵となる。
+
+\paragraph{TT への近似誤差（本書の系統の定量）}
+偏光を無視すると、光子の四重極＝粘性の扱いが変わり、Silk 減衰係数（第\ref{ch:ch09_damping}章
+式\eqref{eq:kD}）が偏光込みの $8/9$ ではなく $16/15$ になる。この差は減衰尾を高めに
+する。第\ref{ch:ch14_numerics}章の CLASS 比較ではこれが
+\begin{equation}
+  \ell\lesssim950:\ <3\%,\qquad \ell=1500:\ +13\%,
+\end{equation}
+として現れ、本書最小構成における\textbf{既知・定量済みの系統}である。第2版で偏光
+（本付録を本文へ昇格）を実装すれば解消する見込み。

@@ -1,7 +1,34 @@
-% 付録D Peebles方程式の導出詳細（WP5 skeleton）
+% 付録D Peebles方程式の導出詳細
 \section*{付録D\quad Peebles方程式の導出詳細}
 \addcontentsline{toc}{section}{付録D\quad Peebles方程式の導出詳細}
 
-3準位原子、case-B 再結合係数のフィット式、Lyα 脱出（Sobolev）の導出。
+\paragraph{三準位原子}
+水素を「連続（自由）・第一励起 $n=2$・基底 $n=1$」の三準位で近似する。基底への直接
+再結合は即再電離する光子を出すため無効で、正味の再結合は $n=2$ を経由する。$n=2$ から
+基底へ落ちる経路は (i) $2s\to1s$ 二光子崩壊 $\Lambda_{2s\to1s}=8.227~\mathrm{s^{-1}}$、
+(ii) Ly$\alpha$ 光子の宇宙膨張による赤方偏移脱出 $\Lambda_\alpha$、の二つ。
 
-% TODO(WP5): 本文。
+\paragraph{case-B 再結合係数}
+基底への直接再結合を除いた実効再結合係数（case-B）はフィット式
+\begin{equation}
+  \alpha^{(2)}(T_b)=\frac{8}{\sqrt{3\pi}}\sigma_Tc\sqrt{\frac{\epsilon_0}{k_BT_b}}\,
+  \phi_2(T_b),\qquad \phi_2=0.448\ln\!\frac{\epsilon_0}{k_BT_b},
+\end{equation}
+で与えられる。光イオン化係数 $\beta=\alpha^{(2)}(m_ek_BT_b/2\pi\hbar^2)^{3/2}
+e^{-\epsilon_0/k_BT_b}$、および $n=2$ からの $\beta^{(2)}=\beta\,e^{3\epsilon_0/4k_BT_b}$。
+
+\paragraph{Ly$\alpha$ 脱出（Sobolev）と $C_r$}
+膨張による Ly$\alpha$ 脱出率は
+$\Lambda_\alpha=H\frac{(3\epsilon_0)^3}{(8\pi)^2(\hbar c)^3 n_{1s}}$
+（$n_{1s}=(1-X_e)n_H$）。$n=2$ 準位の準平衡を仮定すると、基底へ到達する割合
+（Peebles 係数）は
+\begin{equation}
+  C_r=\frac{\Lambda_{2s\to1s}+\Lambda_\alpha}{\Lambda_{2s\to1s}+\Lambda_\alpha+\beta^{(2)}},
+\end{equation}
+となり、これを速度方程式に掛けて第\ref{ch:ch03_recombination}章の Peebles 方程式
+\eqref{eq:peebles} を得る。$C_r\to1$ で再結合律速、$C_r\ll1$ で光イオン化が平衡を保つ。
+
+\paragraph{数値上の注意}
+$\beta^{(2)}$ は $\beta$ に $e^{3\epsilon_0/4k_BT_b}$ を掛けた解析合成形で実装し、
+$e^{-\epsilon_0/k_BT_b}$ のアンダーフローと相殺させる（\texttt{cmbcore.recombination}）。
+$T_b=T_\gamma$ 近似を用い、その差は\textbf{数値の現実}枠で言及する。

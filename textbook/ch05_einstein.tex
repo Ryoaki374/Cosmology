@@ -1,24 +1,61 @@
-% 第5章 アインシュタイン方程式の線形化（WP5 skeleton; 本文・導出は執筆予定）
+% 第5章 アインシュタイン方程式の線形化
 \section{アインシュタイン方程式の線形化}
 \label{ch:ch05_einstein}
 
 \paragraph{この章で導くこと（入力→出力）}
-Newtonianゲージで $\delta G^\mu{}_\nu=8\pi G\,\delta T^\mu{}_\nu$ を成分計算し、実装に使う2本（$\Phi$ 発展式・$\Psi$ 代数式）に整理する。
+Newtonian ゲージで $\delta G^\mu{}_\nu=\frac{8\pi G}{c^4}\delta T^\mu{}_\nu$ を成分計算し
+（入力）、数値実装に使う2本——$\Phi$ の発展方程式と $\Psi$ の代数式——に整理する
+（出力 S5.2）。これが \texttt{cmbcore} の重力ソース（G1, G2）になる。
 
-% --- 節構成（01_textbook_spec.md より）-------------------------------------
 \subsection{摂動 Christoffel・Ricci}
-% TODO(WP5): 5.1 の本文。
-\subsection{$\delta T^\mu{}_\nu$ と異方性応力（契約 S5.2）}
-% TODO(WP5): 5.2 の本文。
-\subsection{4本の方程式と独立2本の選択}
-% TODO(WP5): 5.3 の本文。
+計量\eqref{eq:metric} から摂動 Christoffel 記号、Ricci テンソルを1次で計算する。
+代表成分のみ本文で示し、全成分表は付録A に置く。空間平坦・スカラー摂動では
+$\delta G^0{}_0,\ \delta G^0{}_i,\ \delta G^i{}_j$ の3種が独立に効く。
+
+\subsection{摂動エネルギー運動量テンソル}
+全成分（CDM・バリオン・光子・ニュートリノ）の和として
+\begin{equation}
+  \delta T^0{}_0=-\sum_i\bar\rho_i\delta_i,\quad
+  \delta T^0{}_i\propto\sum_i(\bar\rho_i+\bar p_i)v_i,\quad
+  \delta T^i{}_j\ni \text{異方性応力}\ \sigma.
+\end{equation}
+光子・ニュートリノの異方性応力は四重極 $\Theta_2,\mathcal N_2$ に比例する（導出契約
+S5.2）。これが $\Phi$ と $\Psi$ を分離させる唯一の源である。
+
+\subsection{独立な2本の選択}
+4本の方程式（00, 0i, ii, トレースレス ij）から、数値積分に最も適した独立2本を選ぶ。
+$\ln a=x$、$' =d/dx$、$\mathcal H=aH$ として（`03` §3.1, G1・G2）:
+\begin{align}
+  \Phi' &= \Psi-\frac{c^2k^2}{3\mathcal H^2}\Phi
+  +\frac{H_0^2}{2\mathcal H^2}\Big[\Omega_{c0}e^{-x}\delta_c+\Omega_{b0}e^{-x}\delta_b
+  +4\Omega_{\gamma0}e^{-2x}\Theta_0+4\Omega_{\nu0}e^{-2x}\mathcal N_0\Big], \label{eq:G1}\\
+  \Psi &= -\Phi-\frac{12H_0^2}{c^2k^2e^{2x}}\Big[\Omega_{\gamma0}\Theta_2
+  +\Omega_{\nu0}\mathcal N_2\Big]. \label{eq:G2}
+\end{align}
+式\eqref{eq:G1} は $\Phi$ の発展方程式（00 と 0i の組合せ）、式\eqref{eq:G2} は
+$\Psi$ を $\Phi$ と異方性応力から代数的に与える（トレースレス ij）。
+
+\begin{numreality}
+\eqref{eq:G1}--\eqref{eq:G2} は \texttt{cmbcore.perturbations.\_Phi\_prime} と
+\texttt{\_Psi} に実装。異方性応力がゼロ（$\Theta_2=\mathcal N_2=0$）なら
+$\Psi=-\Phi$。再結合前は光子四重極が tight coupling で抑制されるため $\Phi\simeq-\Psi$ が
+よい近似になる。
+\end{numreality}
+
 \subsection{ニュートン極限の確認}
-% TODO(WP5): 5.4 の本文。
+小スケール・準静的極限（$ck/\mathcal H\gg1$、時間微分無視）で式\eqref{eq:G1} は
+\begin{equation}
+  -\frac{c^2k^2}{a^2}\Phi=4\pi G\,\bar\rho\,\delta,
+\end{equation}
+すなわち Poisson 方程式に帰着し、$\Psi\simeq-\Phi$（異方性応力なし）。これで
+$\Psi$ が確かにニュートンポテンシャルであることが確認できる。
 
+\paragraph{まとめ}
+$\delta G=8\pi G\,\delta T/c^4$ から独立2本\eqref{eq:G1}--\eqref{eq:G2} を選び、
+異方性応力が $\Phi,\Psi$ を分ける唯一の源であること、ニュートン極限で Poisson に
+帰すことを示した。
 
-\paragraph{導出契約}
-本章の導出契約: S5.1–S5.2。各契約は「入力式→出力式」を中間ステップ省略なし
-（1ステップ＝学部4年生が5分で検算可能）で履行する。\emph{本文プローズは WP5 で執筆。}
-
-\paragraph{まとめ・チェックリスト・演習}
-% TODO(WP5): 章末まとめ、チェックリスト、演習 3–6 問（うち1問は対応 NB の課題）。
+\paragraph{演習}
+(1) 式\eqref{eq:G2} の異方性応力項の $1/k^2$ 依存の由来を述べよ。
+(2) tight coupling で $\Theta_2\to0$ となり $\Psi\to-\Phi$ を確認せよ。
+(3) ニュートン極限 Poisson 方程式を式\eqref{eq:G1} から導け。
