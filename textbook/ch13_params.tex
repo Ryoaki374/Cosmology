@@ -1,34 +1,72 @@
-% 第13章 パラメータ依存性の定量分析（WP5 skeleton; 本文・導出は執筆予定）
+% 第13章 パラメータ依存性の定量分析
 \section{パラメータ依存性の定量分析}
 \label{ch:ch13_params}
 
 \paragraph{この章で導くこと（入力→出力）}
-各パラメータの $C_\ell$ 応答を (i)機構 (ii)解析スケーリング (iii)数値（NB6）の3点セットで示す（要求仕様の中核）。
+各パラメータを fiducial から動かしたときの $C_\ell$ 応答を、(i) 物理機構、
+(ii) 解析スケーリング、(iii) 数値（NB6 の図と\%表）の3点セットで与える。要求仕様
+（README §1.4）の必須トピック $\tau$・$z_*$・$z_{\rm re}$・$\sum m_\nu$ を扱う。
 
-% --- 節構成（01_textbook_spec.md より）-------------------------------------
-\subsection{方法論: 応答の測り方}
-% TODO(WP5): 13.1 の本文。
-\subsection{$A_s, n_s$}
-% TODO(WP5): 13.2 の本文。
-\subsection{$\Omega_bh^2$（奇偶比・ピーク移動・減衰尾）}
-% TODO(WP5): 13.3 の本文。
-\subsection{$\Omega_mh^2$（$a_{\rm eq}$・driving・ISW）}
-% TODO(WP5): 13.4 の本文。
-\subsection{$\Omega_\Lambda$・曲率（幾何縮退）}
-% TODO(WP5): 13.5 の本文。
-\subsection{光学的厚み $\tau$ と $z_{\rm re}$（$e^{-2\tau}$ 抑制; 契約 S13.1）}
-% TODO(WP5): 13.6 の本文。
-\subsection{再結合期 $z_*$ のずれ（$\partial\ln\ell_1/\partial\ln z_*$）}
-% TODO(WP5): 13.7 の本文。
-\subsection{ニュートリノ質量 $\sum m_\nu$（契約 S13.2; CLASS）}
-% TODO(WP5): 13.8 の本文。
-\subsection{まとめ: 応答行列と縮退}
-% TODO(WP5): 13.9 の本文。
+\subsection{方法論}
+応答は比 $C_\ell^{\rm new}/C_\ell^{\rm fid}$ または対数微分
+$\partial\ln C_\ell/\partial\ln p$ で測る。何を固定するか（$\theta_*$ 固定 vs $h$ 固定）の
+宣言が本質的である。本書の自前計算は \texttt{scripts/make\_param\_study.py}、
+質量ニュートリノは \texttt{classy} に委譲する（`04` §7）。
 
+\subsection{$A_s,n_s$}
+$A_s$ は全体振幅 $C_\ell\propto A_s$。$n_s$ は pivot $k_{\rm pivot}=0.05$~Mpc$^{-1}$
+周りで傾きを与え、低 $\ell$ と高 $\ell$ をシーソー状に変える。
 
-\paragraph{導出契約}
-本章の導出契約: S13.1–S13.3。各契約は「入力式→出力式」を中間ステップ省略なし
-（1ステップ＝学部4年生が5分で検算可能）で履行する。\emph{本文プローズは WP5 で執筆。}
+\subsection{$\Omega_bh^2$}
+バリオン荷重 $R\uparrow$ で奇数ピークが増強（奇偶非対称↑）、$c_s\downarrow$ で
+$r_s\downarrow$ → ピークが高 $\ell$ へ、$k_D$ 変化で減衰尾が変わる
+（第\ref{ch:ch12_peaks}章）。
 
-\paragraph{まとめ・チェックリスト・演習}
-% TODO(WP5): 章末まとめ、チェックリスト、演習 3–6 問（うち1問は対応 NB の課題）。
+\subsection{$\Omega_mh^2$}
+等密度 $a_{\rm eq}$ が動き、radiation driving と early ISW が増減して第一ピーク高に
+効く。$\chi_*$ と $r_s$ の双方が変わる。
+
+\subsection{$\Omega_\Lambda$・曲率}
+$100\theta_*$ を一定に保つ線上では一次 $C_\ell$ がほぼ不変（\textbf{幾何縮退}）。
+破れるのは late ISW が効く $\ell\lesssim30$ のみ。
+
+\subsection{光学的厚み $\tau$ と再電離 $z_{\rm re}$（導出契約 S13.1）}
+再電離後の散乱で $\ell\gtrsim30$ の全ピークが一様に $e^{-2\tau}$ で抑制される。
+地平線スケールを超える低 $\ell$ は抑制されない。\texttt{cmbcore} の tanh 再電離
+（$z_{\rm re}=8$, $\tau=0.069$）で（図 F6.4）:
+\begin{equation}
+  \frac{\Delta\mathcal D_{500}}{\mathcal D_{500}}=-12.89\%
+  \quad\text{vs}\quad e^{-2\tau}-1=-12.91\%,
+\end{equation}
+と\textbf{$0.1\%$ 以内で一致}する（仕様 F6.4 合格）。瞬間再電離では
+$\tau(z_{\rm re})$ が解析式で与えられ、$z_{\rm re}=7.7\Rightarrow\tau\approx0.054$。
+$A_se^{-2\tau}$ の縮退は偏光 EE 再電離バンプ（付録E、振幅 $\propto\tau^2$）で破れる。
+
+\subsection{再結合期 $z_*$ のずれ（導出契約）}
+原始ヘリウム量・微細構造定数・エネルギー注入により $z_*$ がずれる思考実験。
+\texttt{Recombination(recomb\_shift)} で Peebles 係数の温度引数を一括スケールすると
+（$T_b\times1.05$、図 F6.6）、
+\begin{equation}
+  z_*:1082\to1032,\qquad \ell_1:220\to210,
+\end{equation}
+すなわち $z_*$ が下がると $r_s$ が伸び $\theta_*$ が増し $\ell_1$ が低 $\ell$ へ動く
+（$\ell_1\propto1/\theta_*$）。可視度幅の変化は減衰尾にも効く。
+
+\subsection{ニュートリノ質量 $\sum m_\nu$（導出契約 S13.2）}
+非相対論化は $z_{\rm nr}\simeq1890\,(m_\nu/\mathrm{eV})$ で、$\sum m_\nu\lesssim0.6$~eV
+では再結合時はほぼ相対論的。一次効果は (a) $\theta_*$ 固定下の低赤方偏移 $H(z)$ 変化
+→ late ISW・$\chi_*$、(b) early ISW の微増、(c) レンズ平滑化の減少、(d) 物質パワー
+抑制 $\Delta P/P\approx-8f_\nu$（自由流長）。レンズと質量は本書の最小構成外のため、
+機構説明＋ \texttt{classy} 比較図で定量提示する（NB6）。$\theta_*$ 固定の unlensed TT は
+$\sum m_\nu=0.3$~eV でも数% 以内 → 「CMB 単独では質量に鈍く、レンズ・LSS との
+組合せが要る」を数値で立証する。
+
+\subsection{まとめ: 応答行列}
+パラメータ→特徴量の応答を一表にまとめると、$\theta_*$（$\to\ell_1$）はよく決まり、
+$\Omega_\Lambda$/曲率や $A_se^{-2\tau}$、$\sum m_\nu$ は縮退として残る。これが
+「CMB だけで何が決まり、何が縮退か」の答えである。
+
+\paragraph{演習}
+(1) NB6 で $z_{\rm re}$ を変え $\tau$ と $\ell=500$ 抑制率の関係を確かめよ。
+(2) $\partial\ln\ell_1/\partial\ln z_*$ を数値から評価し解析予測と比べよ。
+(3) 幾何縮退を $100\theta_*$ 一定線上で図示せよ。

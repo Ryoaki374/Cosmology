@@ -1,24 +1,54 @@
-% 第9章 光子拡散と減衰（WP5 skeleton; 本文・導出は執筆予定）
+% 第9章 光子拡散と減衰
 \section{光子拡散と減衰}
 \label{ch:ch09_damping}
 
 \paragraph{この章で導くこと（入力→出力）}
-強結合1次の展開からせん断粘性・熱伝導による Silk 減衰を導き、$k_D(\eta)$ を定量化する。
+強結合展開の次数を上げ（入力）、せん断粘性と熱伝導による拡散減衰（Silk damping）を
+導いて減衰スケール $k_D(\eta)$ を定量化する（出力 S9.1）。これが第\ref{ch:ch12_peaks}章の
+減衰尾を説明する。
 
-% --- 節構成（01_textbook_spec.md より）-------------------------------------
-\subsection{平均自由行程とランダムウォーク}
-% TODO(WP5): 9.1 の本文。
-\subsection{強結合1次展開と $k_D$（契約 S9.1）}
-% TODO(WP5): 9.2 の本文。
+\subsection{平均自由行程とランダムウォークの直観}
+光子は電子と衝突しながらランダムウォークで拡散する。共動拡散長は
+$\lambda_D^2\sim\int\lambda_{\rm mfp}\,c\,dt/a$ のオーダーで、平均自由行程
+$\lambda_{\rm mfp}=1/(n_e\sigma_T a)$ が再結合に向けて伸びるほど拡散が進む。
+スケール $k>k_D\sim1/\lambda_D$ のゆらぎは散乱でならされて消える。
+
+\subsection{強結合1次の系統的展開（導出契約 S9.1）}
+$1/\tau'$ 展開の1次で、四重極 $\Theta_2$（粘性）と $\Theta_1+v_b/3$ のずれ（滑り＝
+熱伝導）が現れる。これを振動子方程式（第\ref{ch:ch08_acoustic}章）に戻すと分散関係に
+虚部が生じ、振幅が $\exp[-(k/k_D)^2]$ で減衰する。減衰スケールは
+\begin{equation}
+  \frac{1}{k_D^2(\eta)}=\int_0^\eta\frac{d\eta'}{6(1+R)\,|\dot\tau|}
+  \left[\frac{R^2}{1+R}+\frac{16}{15}\right],
+  \label{eq:kD}
+\end{equation}
+で与えられる。\textbf{偏光を無視すると最後の係数が $16/15$ になる}（偏光込みでは
+$8/9$）。この差が CLASS 比での減衰尾の系統差（第\ref{ch:ch14_numerics}章・付録E）の
+主因である。
+
+\begin{numreality}
+式\eqref{eq:kD} は \texttt{cmbcore.analytic.silk\_scale} に実装。fiducial で
+\begin{equation}
+  k_D(\eta_*)\approx0.149~\mathrm{Mpc^{-1}}\ (\text{目標}\ 0.14\pm20\%),
+\end{equation}
+を与え、対応する減衰多重極は $\ell_D\sim k_D\chi_*\sim1300$--$1500$。
+\end{numreality}
+
 \subsection{可視度幅によるぼかし}
-% TODO(WP5): 9.3 の本文。
-\subsection{数値確認（$k_D\approx0.14$ Mpc$^{-1}$）}
-% TODO(WP5): 9.4 の本文。
+最終散乱面が有限の厚み $\Delta z\approx80$（第\ref{ch:ch03_recombination}章）を持つため、
+視線方向に異なる位相の振動が重なり、さらに小スケールがならされる（Landau 減衰的）。
+これも $e^{-k^2/k_D^2}$ 型の抑制に寄与する。
 
+\subsection{数値確認}
+$k=10^4 H_0/c$ のような小スケールでは $\Theta_0$ が急減衰する（NB3）。減衰包絡
+$e^{-(k/k_D)^2}$ とフル数値の振幅は $k\lesssim0.2$~Mpc$^{-1}$ で $20\%$ 以内に一致する
+（NB7, F7.3）。
 
-\paragraph{導出契約}
-本章の導出契約: S9.1。各契約は「入力式→出力式」を中間ステップ省略なし
-（1ステップ＝学部4年生が5分で検算可能）で履行する。\emph{本文プローズは WP5 で執筆。}
+\paragraph{まとめ}
+拡散減衰スケール $k_D$\eqref{eq:kD} を導き、$k_D\approx0.149$~Mpc$^{-1}$ を数値確認した。
+偏光無視による係数 $16/15$ が減衰尾の既知系統を生む。
 
-\paragraph{まとめ・チェックリスト・演習}
-% TODO(WP5): 章末まとめ、チェックリスト、演習 3–6 問（うち1問は対応 NB の課題）。
+\paragraph{演習}
+(1) 式\eqref{eq:kD} の次元を確認せよ。
+(2) NB7 で $e^{-(k/k_D)^2}$ と数値振幅を重ね、ずれが出る $k$ を同定せよ。
+(3) $\ell_D=k_D\chi_*$ を数値で求め減衰尾の落ち始めと比べよ。

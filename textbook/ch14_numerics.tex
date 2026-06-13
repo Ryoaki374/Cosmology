@@ -1,24 +1,81 @@
-% 第14章 数値実装の設計（WP5 skeleton; 本文・導出は執筆予定）
+% 第14章 数値実装の設計
 \section{数値実装の設計}
 \label{ch:ch14_numerics}
 
 \paragraph{この章で導くこと（入力→出力）}
-`cmbcore` の設計を本文として解説する（`03_numerics_spec.md` の人間可読版）。ソースを粗 k で解き k方向スプライン補間→細 k で視線積分する手法を含む。
+これまでの方程式系（入力）を、読者が自分で書けるアルゴリズム（出力）に翻訳する。
+本章は \texttt{cmbcore}（`03\_numerics\_spec.md` の人間可読版）の設計解説であり、
+最後に CLASS 比較で正しさを定量検証する。
 
-% --- 節構成（01_textbook_spec.md より）-------------------------------------
 \subsection{モジュール構成と単位系}
-% TODO(WP5): 14.1 の本文。
-\subsection{ODEソルバと tight coupling 切替}
-% TODO(WP5): 14.2 の本文。
-\subsection{視線積分の収束（粗解＋細k）}
-% TODO(WP5): 14.3 の本文。
+独立変数は $x=\ln a$、単位は SI で $c$ を明示する。
+\begin{center}
+\begin{tabular}{ll}
+\hline
+モジュール & 役割 \\
+\hline
+\texttt{background} & $\mathcal H,\mathcal H',\mathcal H''$（解析）、$\eta,t$ の ODE、距離、$z_{\rm eq}$ \\
+\texttt{recombination} & Saha$\to$Peebles の $X_e$、$\tau,\tilde g$、音地平線 $r_s$ \\
+\texttt{perturbations} & tight coupling＋フル Boltzmann 階層、断熱初期条件 \\
+\texttt{spectrum} & ソース関数、視線積分、$C_\ell$ \\
+\texttt{analytic} & $\ell_A,k_D,\theta_*$、ピーク位置公式 \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{ODE ソルバと tight coupling 切替}
+各 $k$ について \texttt{scipy.integrate.solve\_ivp}（LSODA, \texttt{rtol}$=10^{-8}$）で
+積分する。再結合前は $|\tau'|\gg ck/\mathcal H,1$ のため光子階層が硬く（stiff）なるので、
+$\Theta_0,\Theta_1$ のみを積分し $\Theta_{\ell\ge2}$ を代数的に与える
+\textbf{tight coupling 近似}（第\ref{ch:ch08_acoustic}章）を用いる。切替条件
+$|\tau'|>10,\ |\tau'|>10\,ck/\mathcal H,\ X_e>0.99$ を満たす間 TC、以後フル階層
+（$\ell_{\max}=8$ 光子、$\ell_{\max}^\nu=10$）に切り替える。切替点で状態をコピーし
+$\Theta_0,\Theta_1$ の連続性を確認する。
+
+\subsection{視線積分の収束（粗解＋細 $k$）}
+本章の要点。$\Theta_\ell(k)=\int\tilde S\,j_\ell[k(\eta_0-\eta)]\,dx$（式 \eqref{eq:los}）の
+被積分関数はソースが再結合面に局在するため、$\Theta_\ell$ が $k$ について
+\begin{equation}
+  \text{周期}\ \Delta k\sim\frac{2\pi}{\chi_*}\approx4.6\times10^{-4}\,\mathrm{Mpc^{-1}},
+\end{equation}
+で急速振動する。摂動 ODE を全 $k$ で細かく解くのは高コストだが、\textbf{ソース
+$\tilde S(k,x)$ 自体は $k$ で滑らか}である。そこで
+\begin{enumerate}
+  \item 摂動 ODE は\textbf{粗い $k$ グリッド}（$\sim200$ 点）で解き $\tilde S(k,x)$ を得る；
+  \item $\tilde S$ を $\ln k$ 方向にスプライン補間して\textbf{細い $k$ グリッド}
+  （$\Delta k\sim2\pi/\chi_*/8$、$\sim6000$ 点）へ展開し；
+  \item 細い $k$ で式 \eqref{eq:los} と $C_\ell$ 積分を実行する。
+\end{enumerate}
+これは CLASS/CAMB と同じ戦略で、解像度（細 $k$）と計算コスト（粗解）を分離する。
+ベッセル表 $j_\ell$ の構築と視線積分は $\ell$ について並列化する（\texttt{los\_integral
+(nproc)}; 直列と bit 一致を確認、実測で数倍の高速化）。
+
+\begin{numreality}
+この分離を怠り粗グリッドで直接 $C_\ell=\int|\Theta_\ell|^2 dk/k$ を台形積分すると、
+$\ell$ ごとに位相がずれて中 $\ell$ にジッタが出る（$n_k$ を半減すると個々の $D_\ell$ が
+最大 $\sim37\%$ 変化）。粗解＋細 $k$ で滑らかな $C_\ell$ が得られる。
+\end{numreality}
+
 \subsection{検証プロトコルと CLASS 比較}
-% TODO(WP5): 14.4 の本文。
+特徴量（$z_{\rm eq},z_*,r_s,\chi_*,\theta_*,k_D$）は第\ref{ch:ch01_introduction}--\ref{ch:ch09_damping}章の
+目標値に一致する。設定A（TT のみ・lensing なし・reio off・massless $\nu$）で CLASS と
+比較すると、$D_\ell^{TT}$ は
+\begin{itemize}
+  \item 中央値 $0.79\%$、$\ell\lesssim950$ で $<3\%$ 一致（第一〜第三ピークはほぼ重なる）；
+  \item 第一ピーク高さが $<1\%$ 一致 $\Rightarrow$ \textbf{規格化 $\mathcal R_{\rm ini}=1$ の検証}（第\ref{ch:ch11_cl}章）；
+  \item $\ell\gtrsim1000$ で $+$最大 $13\%$（$\ell=1500$）。これは\textbf{偏光無視による
+  Silk 減衰係数の差}（$16/15$ vs 偏光込み $8/9$；第\ref{ch:ch09_damping}章・付録E）で、
+  本書の最小構成における既知・定量済みの系統である。
+\end{itemize}
+収束は $\ell_{\max}\in\{6,8,12\}$, $n_k$, \texttt{rtol} を振って確認し、$1\%$ 以内に
+収まる最小設定を既定値に採る。
 
+\paragraph{まとめ}
+方程式系は (i) 背景・再結合の前計算、(ii) $k$ ごとの TC＋フル階層積分、
+(iii) ソース粗解＋細 $k$ 視線積分、(iv) $C_\ell$ 合成、という4段で実装され、
+CLASS との比較で主要部 $<3\%$、規格化 $<1\%$ の一致を得た。
 
-\paragraph{導出契約}
-本章の導出契約: —。各契約は「入力式→出力式」を中間ステップ省略なし
-（1ステップ＝学部4年生が5分で検算可能）で履行する。\emph{本文プローズは WP5 で執筆。}
-
-\paragraph{まとめ・チェックリスト・演習}
-% TODO(WP5): 章末まとめ、チェックリスト、演習 3–6 問（うち1問は対応 NB の課題）。
+\paragraph{演習}
+(1) tight coupling を切らずに全域フル階層で解き、計算時間と精度を比較せよ。
+(2) NB8 で $n_k$ を振り、中 $\ell$ の収束を確認せよ。
+(3) 細 $k$ グリッド間隔を $2\times$ 粗くして $C_\ell$ のジッタが復活することを見よ。

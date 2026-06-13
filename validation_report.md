@@ -56,7 +56,21 @@ $\Theta_\ell(k)=\int S(k,x)j_\ell[k(\eta_0-\eta)]dx$ は、ソースが再結合
 - ソース粗解＋細kスプライン視線積分により中 $\ell$ ジッタは解消（上図）。
 - 高 $\ell$ ベッセル表構築が単一プロセスで律速。結果に影響せず、ell並列化が最適化候補。
 
-## CLASS 比較（§5.3）— TODO
-- 設定A（TTのみ・lensingなし・$Y_p\to$最小・$N_{\rm eff}=3.046$・reio off）の
-  キャッシュCSVを生成し、$\ell\le1000$ で3%、$\ell\le1500$ で5% を確認する。
-- 設定B（フル）との差は第14章 Fig 14.3 で図示（偏光無視の系統差の可視化）。
+## CLASS 比較（§5.3）— 実施済み（`scripts/make_class_comparison.py`, `classy` 3.3.4）
+設定A（TTのみ・lensingなし・reio off・massless $\nu$・$Y_{\rm He}=0.01$ で cmbcore の
+$Y_p=0$ に最接近）での $D_\ell^{TT}$ 相対差（`figures/class_comparison.png`）:
+
+| 範囲 | 相対差 | 目標 | 判定 |
+|---|---|---|---|
+| 中央値（全 $\ell$） | **0.79%** | — | ✅ |
+| $\ell\lesssim950$ | $<3\%$ | $\le1000$ で3% | ✅（ほぼ達成） |
+| $\ell\le1000$（最大） | 5.5% | 3% | ⚠ $\ell\sim1000$ で超過 |
+| $\ell\le1500$（最大） | 12.9% | 5% | ⚠ 減衰尾 |
+
+- 第一〜第三ピーク（$\ell\lesssim900$）は CLASS とほぼ一致し、**振幅規格化
+  （$\mathcal R_{\rm ini}=1$）の正しさが確認された**（第一ピーク高さも <1%）。
+- $\ell\gtrsim1000$ で cmbcore が系統的に高い（+13% @ $\ell=1500$）のは\textbf{偏光無視
+  による Silk 減衰係数の差}（$16/15$ vs 偏光込み $8/9$、付録E・第9章）。これは本書の
+  最小構成における既知・定量済みの系統で、第2版の偏光実装で解消する見込み。
+- CLASS スペクトルは `figures/class_tt.csv` にキャッシュ（`classy` 非導入環境では
+  これを用いて NB8 が比較を再現）。

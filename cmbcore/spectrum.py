@@ -77,6 +77,25 @@ def _source_one_k(k):
     return ps._source(res, k, x_los) / ps._R_ini(k)
 
 
+# --- worker for ell-parallel line-of-sight integral --------------------------
+_LOS = {}
+
+
+def _los_init(S_fine, x_los, k_fine, chi, z_max, dz):
+    """Store the (shared, constant) LOS inputs in each worker once."""
+    _LOS.update(dict(S_fine=S_fine, x_los=x_los, z_max=z_max, dz=dz,
+                     arg=k_fine[:, None] * chi[None, :]))
+
+
+def _los_one_ell(l):
+    """Theta_ell(k_fine) for one ell: build j_ell table then integrate over x."""
+    dz = _LOS["dz"]
+    z = np.arange(0.0, _LOS["z_max"] + dz, dz)
+    sp = CubicSpline(z, spherical_jn(int(l), z))
+    jl = sp(np.clip(_LOS["arg"], 0.0, z[-1]))
+    return np.trapezoid(_LOS["S_fine"] * jl, _LOS["x_los"], axis=1)
+
+
 # Default multipole sampling (§4.3): dense at low ell, coarser at high ell.
 def default_ells() -> np.ndarray:
     ells = list(range(2, 11))
@@ -220,7 +239,8 @@ class PowerSpectrum:
                                chunksize=max(1, nk // (nproc * 4)))
         return ks_si, x_los, np.array(results)
 
-    def los_integral(self, ells, ks_si, x_los, S, k_fine=None):
+    def los_integral(self, ells, ks_si, x_los, S, k_fine=None, nproc=None,
+                     dz=2.0 * np.pi / 20.0):
         """Line-of-sight Bessel integral on a fine k-grid (§4.2).
 
         :math:`\\Theta_\\ell(k)=\\int S(k,x)\\,j_\\ell[k(\\eta_0-\\eta)]\\,dx`.
@@ -229,6 +249,8 @@ class PowerSpectrum:
         solve grid ``ks_si`` onto ``k_fine`` before the integral, because
         :math:`\\Theta_\\ell` itself oscillates rapidly in k (period
         :math:`\\sim2\\pi/\\chi_*`) and must be sampled finely for a clean C_ell.
+        The per-ell work (the ``spherical_jn`` table build, which dominates at
+        high ell, plus the x-integral) is parallelized over ``ells``.
         Returns ``(k_fine, Theta)`` with ``Theta`` shape ``(len(ells), len(k_fine))``.
         """
         ells = np.asarray(ells)
@@ -240,15 +262,24 @@ class PowerSpectrum:
         # Spline the (smooth-in-k) source onto the fine grid, in ln k.
         lnk = np.log(ks_si)
         S_fine = CubicSpline(lnk, S, axis=0)(np.log(k_fine))  # (n_fine, n_x)
-
         z_max = float(k_fine.max() * chi.max()) * 1.01
-        bessel = BesselBank(ells, z_max)
-        Theta = np.empty((len(ells), len(k_fine)))
-        arg = k_fine[:, None] * chi[None, :]      # (n_fine, n_x)
-        for il, l in enumerate(ells):
-            jl = bessel.eval(l, arg)              # (n_fine, n_x)
-            Theta[il] = np.trapezoid(S_fine * jl, x_los, axis=1)
-        return k_fine, Theta
+
+        if nproc is None:
+            nproc = max(1, os.cpu_count() or 1)
+
+        if nproc == 1 or len(ells) < 8:
+            bank = BesselBank(ells, z_max, dz=dz)
+            arg = k_fine[:, None] * chi[None, :]
+            Theta = np.empty((len(ells), len(k_fine)))
+            for il, l in enumerate(ells):
+                Theta[il] = np.trapezoid(S_fine * bank.eval(l, arg), x_los, axis=1)
+            return k_fine, Theta
+
+        init = (S_fine, x_los, k_fine, chi, z_max, dz)
+        with Pool(processes=nproc, initializer=_los_init, initargs=init) as pool:
+            rows = pool.map(_los_one_ell, [int(l) for l in ells],
+                            chunksize=max(1, len(ells) // (nproc * 4)))
+        return k_fine, np.array(rows)
 
     def _fine_k_grid(self, ks_si):
         """Uniform fine k-grid resolving the j_l(k chi) oscillation (~2pi/chi)."""
@@ -271,7 +302,8 @@ class PowerSpectrum:
         ells = np.asarray(ells)
         ks_si, x_los, S = self.sources(ks_si, x_los, verbose=verbose,
                                        nproc=nproc)
-        return self.los_integral(ells, ks_si, x_los, S, k_fine=k_fine)
+        return self.los_integral(ells, ks_si, x_los, S, k_fine=k_fine,
+                                 nproc=nproc)
 
     # --- C_ell assembly (§4.3) -------------------------------------------------
     def integrate_cls(self, ells, ks_si, Theta):
