@@ -41,10 +41,24 @@ Silk 減衰スケール $k_D$（第\ref{ch:ch09_damping}章, $k_D\approx0.14$~Mp
 ため減衰係数は標準の $16/15$（偏光無視なら $8/9$ で減衰不足）となり、CLASS の
 減衰尾と $<1.5\%$ で一致する（第\ref{ch:ch14_numerics}章・付録E）。
 
+\begin{intuition}
+音響ピークは「再結合の瞬間に振動が凍結したスナップショット」である。地平線に入った
+順にモードが振動を始めるので、ちょうど半周期・1周期…で凍結したモードが交互に
+圧縮（高温）・希薄（低温）のピークを作る。第一ピークは「1回だけ最大圧縮して止まった」
+モードに対応し、その角度サイズが $\theta_*$、多重極が $\ell_1\approx220$ である。
+\end{intuition}
+
 \subsection{総合図解}
 図 F11.1 / F5.1 の $\mathcal D_\ell$ に上記を重ねると、低 $\ell$ プラトー（SW＋late ISW）、
 第一ピーク（音響圧縮＋early ISW）、奇偶非対称、減衰尾、という全要素が一望できる。
 ピーク位置・SW プラトー・$k_D$ はいずれも独立な解析公式（NB7）と数値が整合する。
+
+\begin{numreality}
+\texttt{cmbcore} の fiducial スペクトルは CLASS（同一物理設定）と全 $\ell\le1500$ で
+$<1.5\%$ 一致し（第\ref{ch:ch14_numerics}章）、本章の各特徴（$\ell_1\approx\vallone$、
+$k_D\approx\valkD\,\mathrm{Mpc^{-1}}$、SW プラトー $\sim10^3\,\mu K^2$）が実装で再現される
+ことを保証する。
+\end{numreality}
 
 \paragraph{まとめ}
 $\ell_A,\phi_m$ でピーク位置、$R$ で奇偶非対称、SW＋ISW で低 $\ell$、$k_D$ で減衰尾、と
