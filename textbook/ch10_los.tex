@@ -22,15 +22,28 @@ SW・ISW・Doppler・四重極補正の4項に分解する（出力 S10.1--S10.3
 ベッセル関数に変換する。
 
 \subsection{$\mu$ の部分積分と $j_\ell$ の出現（導出契約 S10.2）}
-平面波の Rayleigh 展開 $e^{ik\mu\Delta\eta}=\sum_\ell(2\ell+1)i^\ell P_\ell(\mu)
-j_\ell(k\Delta\eta)$ を使い、$\mu$ の冪を $\frac{1}{ik}\frac{d}{d\Delta\eta}$ への
-置換（部分積分）で吸収すると、温度多重極は
+多重極は $\Theta_\ell=\frac{1}{(-i)^\ell}\frac{1}{2}\int_{-1}^1 P_\ell(\mu)\Theta\,d\mu$
+（$\S$\ref{ch:ch04_gauge}の規約）。ソースに含まれる $\mu$ の冪は、$\Delta\eta\equiv\eta-\eta_0$
+として恒等式
+\begin{equation}
+  \mu\,e^{ik\mu\Delta\eta}=\frac{1}{ik}\frac{d}{d\Delta\eta}e^{ik\mu\Delta\eta}
+\end{equation}
+で $\Delta\eta$ 微分に置換できる（$\mu^2$ なら2回）。例えば Doppler 項の $\mu v_b$ は
+$\frac{1}{ik}\frac{d}{d\Delta\eta}(\ldots)$ となり、$\Delta\eta$ 積分で部分積分すると
+微分がソース側へ移る——これが式\eqref{eq:source} の Doppler 項・四重極項に現れる
+$\frac{d}{dx}$ の起源である。$\mu$ 依存をすべて指数関数に集めた後、Rayleigh 展開
+\begin{equation}
+  e^{ik\mu\Delta\eta}=\sum_{\ell}(2\ell+1)\,i^\ell P_\ell(\mu)\,j_\ell(k|\Delta\eta|),
+\end{equation}
+を代入し、Legendre 直交性
+$\frac12\int_{-1}^1P_\ell P_{\ell'}d\mu=\frac{\delta_{\ell\ell'}}{2\ell+1}$ で $\mu$ 積分を
+実行すると（$i^\ell$ と $(-i)^\ell$ が相殺して実数化）、温度多重極
 \begin{equation}
   \boxed{\ \Theta_\ell(\eta_0,k)=\int_{-\infty}^{0}\tilde S(k,x)\,
   j_\ell\big[k(\eta_0-\eta(x))\big]\,dx\ }
   \label{eq:los}
 \end{equation}
-となる。$j_\ell[k(\eta_0-\eta)]$ は「波数 $k$ の擾乱を角度スケール $\ell$ へ射影する核」
+を得る。$j_\ell[k(\eta_0-\eta)]$ は「波数 $k$ の擾乱を角度スケール $\ell$ へ射影する核」
 であり、$\ell\approx k(\eta_0-\eta_*)=k\chi_*$ のとき最大の寄与を与える。
 
 \subsection{ソース関数の物理}
