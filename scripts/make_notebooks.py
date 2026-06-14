@@ -206,11 +206,24 @@ def nb6():
              "plt.plot(ells, d['recomb_p5'], label='shift +5%% (z_*=%.0f)'%S['z_star_shift_p5'])\n"
              "plt.xlabel('l'); plt.ylabel('D_l [uK^2]'); plt.xlim(2,800); plt.legend(); plt.show()\n"
              "print('l1: %d -> %d' % (S['l1_fid'], S['l1_recomb_p5']))"),
+        md("## F6.7 ニュートリノ質量 $\\sum m_\\nu$（背景を厳密実装; $h$ 固定）\n"
+           "`Params(Sigma_mnu=...)` で massive ν 背景（運動量積分）が有効になり、"
+           "$\\Omega_\\Lambda$ 減・$\\theta_*$ 変化として TT に効く。"),
+        code("mf = FIG/'massive_nu.npz'\n"
+             "if mf.exists():\n"
+             "    m = np.load(mf); el = m['ells']\n"
+             "    plt.plot(el, m['core_0.12']/m['core_0.0'], label='cmbcore ratio')\n"
+             "    if 'class_0.12' in m: plt.plot(el, m['class_0.12']/m['class_0.0'],'--',label='CLASS ratio')\n"
+             "    plt.axhline(1,c='k',lw=.6); plt.xlabel('l')\n"
+             "    plt.ylabel('C_l(0.12)/C_l(0)'); plt.legend(); plt.title('Sm_nu=0.12 eV TT response'); plt.show()\n"
+             "else:\n"
+             "    print('run scripts/make_massive_nu.py for massive_nu.npz')"),
         md("## 観測への含意\n"
            "- **$\\tau$**: 再電離で散乱が増え、$\\ell\\gtrsim30$ の全ピークが一様に $e^{-2\\tau}$ で抑制される"
            "（低 $\\ell$ は再電離バンプで例外）。\n"
            "- **$z_*$**: 再結合が早まると音地平線 $r_s$ が縮み、$\\ell_1\\propto1/\\theta_*$ が高 $\\ell$ 側へ動く。\n"
-           "- **$\\sum m_\\nu$**: CMB単独では鈍く、レンズ・LSS との組合せが必要（CLASS版で扱う）。\n"
+           "- **$\\sum m_\\nu$**: 背景（$H(z),\\theta_*$, 後期ISW）が支配的で TT への効果は小さい。"
+           "本実装は背景を厳密に扱い CLASS と整合（摂動の自由流＝$P(k)$ 抑制は次段）。\n"
            "## 【課題】 `Params(z_reio=...)` を変え $\\tau$ と抑制率の関係を確認せよ。"),
     ]
 

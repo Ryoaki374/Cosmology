@@ -28,31 +28,37 @@ class BackgroundCosmology:
         self.x_start = x_start
         self.x_end = x_end
         self.x = np.linspace(x_start, x_end, n)
+        # Massive-neutrino contribution to E = (Hp/H0)^2 is a^2 f_ncdm(a)
+        # = e^{2x} rho_ncdm/rho_crit0. Spline it (and use spline derivatives)
+        # only when present; massless runs keep the analytic path bit-for-bit
+        # (Omega_ur == Omega_nu when Sigma_mnu = 0).
+        self._mnu_g = None
+        if getattr(params, "N_ncdm", 0) > 0 and params._massive is not None:
+            xg = np.linspace(x_start, x_end, n)
+            g = np.exp(2.0 * xg) * params._massive.f_ncdm(np.exp(xg))
+            self._mnu_g = CubicSpline(xg, g)
         self._solve_eta_t()
 
     # --- Hubble rate -----------------------------------------------------------
     def Hp(self, x):
         """Conformal Hubble rate :math:`\\mathcal{H}=aH` [1/s]."""
-        p = self.p
-        x = np.asarray(x, dtype=float)
-        e = (
-            (p.Omega_b + p.Omega_c) * np.exp(-x)
-            + (p.Omega_gamma + p.Omega_nu) * np.exp(-2.0 * x)
-            + p.Omega_k
-            + p.Omega_Lambda * np.exp(2.0 * x)
-        )
-        return p.H0 * np.sqrt(e)
+        E, _, _ = self._e_and_deriv(x)
+        return self.p.H0 * np.sqrt(E)
 
     def _e_and_deriv(self, x):
         """Return (E, dE/dx, d2E/dx2) where Hp = H0 sqrt(E)."""
         p = self.p
         x = np.asarray(x, dtype=float)
         mat = (p.Omega_b + p.Omega_c) * np.exp(-x)
-        rad = (p.Omega_gamma + p.Omega_nu) * np.exp(-2.0 * x)
+        rad = (p.Omega_gamma + p.Omega_ur) * np.exp(-2.0 * x)
         lam = p.Omega_Lambda * np.exp(2.0 * x)
         E = mat + rad + p.Omega_k + lam
         dE = -mat - 2.0 * rad + 2.0 * lam
         d2E = mat + 4.0 * rad + 4.0 * lam
+        if self._mnu_g is not None:
+            E = E + self._mnu_g(x)
+            dE = dE + self._mnu_g(x, 1)
+            d2E = d2E + self._mnu_g(x, 2)
         return E, dE, d2E
 
     def dHp(self, x):

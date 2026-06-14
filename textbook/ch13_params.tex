@@ -11,7 +11,8 @@
 応答は比 $C_\ell^{\rm new}/C_\ell^{\rm fid}$ または対数微分
 $\partial\ln C_\ell/\partial\ln p$ で測る。何を固定するか（$\theta_*$ 固定 vs $h$ 固定）の
 宣言が本質的である。本書の自前計算は \texttt{scripts/make\_param\_study.py}、
-質量ニュートリノは \texttt{classy} に委譲する（`04` §7）。
+質量ニュートリノは背景を自前実装し（\texttt{massive\_nu.py}）、摂動の自由流は CLASS と
+照合する。
 
 \subsection{$A_s,n_s$}
 $A_s$ は全体振幅 $C_\ell\propto A_s$。$n_s$ は pivot $k_{\rm pivot}=0.05$~Mpc$^{-1}$
@@ -54,12 +55,25 @@ $A_se^{-2\tau}$ の縮退は偏光 EE 再電離バンプ（付録E、振幅 $\pr
 
 \subsection{ニュートリノ質量 $\sum m_\nu$（導出契約 S13.2）}
 非相対論化は $z_{\rm nr}\simeq1890\,(m_\nu/\mathrm{eV})$ で、$\sum m_\nu\lesssim0.6$~eV
-では再結合時はほぼ相対論的。一次効果は (a) $\theta_*$ 固定下の低赤方偏移 $H(z)$ 変化
-→ late ISW・$\chi_*$、(b) early ISW の微増、(c) レンズ平滑化の減少、(d) 物質パワー
-抑制 $\Delta P/P\approx-8f_\nu$（自由流長）。レンズと質量は本書の最小構成外のため、
-機構説明＋ \texttt{classy} 比較図で定量提示する（NB6）。$\theta_*$ 固定の unlensed TT は
-$\sum m_\nu=0.3$~eV でも数% 以内 → 「CMB 単独では質量に鈍く、レンズ・LSS との
-組合せが要る」を数値で立証する。
+では再結合時はほぼ相対論的。一次効果は (a) $\theta_*$・$\chi_*$ を通じた背景幾何、
+(b) 後期 ISW、(c) レンズ平滑化の減少、(d) 物質パワー抑制 $\Delta P/P\approx-8f_\nu$
+（自由流長）。
+
+\texttt{cmbcore} は\textbf{質量ニュートリノの背景を厳密に実装}する
+（\texttt{massive\_nu.py}）。共動エネルギー $\varepsilon=\sqrt{q^2+a^2m^2}$ の運動量
+積分で $\rho_{\rm ncdm}(a)$ を求め、相対論的（$\propto a^{-4}$）から非相対論的
+（$\propto a^{-3}$）への遷移を捉える。今日の密度は $\Omega_{\rm ncdm}h^2\approx
+\sum m_\nu/93~\mathrm{eV}$ を再現し、平坦条件で $\Omega_\Lambda$ が減るため $H(z)$ と
+距離が変わる（$h$ 固定で $\sum m_\nu=0.06/0.12/0.30$~eV に対し $\Omega_\Lambda{:}\,
+0.686\!\to\!0.684\!\to\!0.679$、$100\theta_*{:}\,1.034\!\to\!1.040$）。
+
+\begin{numreality}
+背景実装は CLASS（フル ncdm）の unlensed TT 応答 $C_\ell(\sum m_\nu)/C_\ell(0)$ と
+整合する（NB6 / \texttt{scripts/make\_massive\_nu.py}）。$\theta_*$ 固定の unlensed TT は
+$\sum m_\nu\lesssim0.3$~eV で数\% 以内に留まり、「CMB 単独では質量に鈍く、レンズ・
+LSS との組合せが要る」ことを数値で立証する。摂動レベルの自由流（$q$ グリッド階層に
+よる $P(k)$ 抑制）は TT への寄与が小さく、第2版の拡張項目とする。
+\end{numreality}
 
 \subsection{まとめ: 応答行列}
 パラメータ→特徴量の応答を一表にまとめると、$\theta_*$（$\to\ell_1$）はよく決まり、

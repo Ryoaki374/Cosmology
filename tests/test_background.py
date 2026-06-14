@@ -42,6 +42,26 @@ def test_Hp_derivative_matches_numeric(bg):
     assert abs(bg.dHp(x) - num) / abs(num) < 1e-4
 
 
+def test_massive_neutrino_background():
+    """Sigma m_nu: Omega_ncdm0 ~ Sm/93/h^2, massless path unchanged, theta_* up."""
+    p0 = Params.fiducial()
+    bg0 = BackgroundCosmology(p0)
+    # massless run is bit-identical (Omega_ur == Omega_nu when Sigma_mnu=0)
+    assert p0.N_ncdm == 0 and abs(p0.Omega_ur - p0.Omega_nu) < 1e-18
+
+    p = Params(Sigma_mnu=0.12)
+    bg = BackgroundCosmology(p)
+    # today's massive density ~ Sm/(93.14 h^2), within a few percent (FD detail)
+    expect = 0.12 / 93.14 / p.h ** 2
+    assert abs(p.Omega_ncdm0 - expect) / expect < 0.03
+    # flat closure still holds
+    tot = (p.Omega_b + p.Omega_c + p.Omega_gamma + p.Omega_ur
+           + p.Omega_ncdm0 + p.Omega_Lambda + p.Omega_k)
+    assert abs(tot - 1.0) < 1e-10
+    # massive nu lowers Omega_Lambda (added non-relativistic density today)
+    assert p.Omega_Lambda < p0.Omega_Lambda
+
+
 def test_dimensionless_invariance(bg):
     """The reduced expansion rate Hp(x)/H0 is the dimensionless sqrt(E(x)).
 

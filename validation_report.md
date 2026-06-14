@@ -50,7 +50,20 @@ $\Theta_\ell(k)=\int S(k,x)j_\ell[k(\eta_0-\eta)]dx$ は、ソースが再結合
 
 - 「どの方向に・何%・なぜ」（README §1.4）: $\tau$ は $\ell\gtrsim30$ を $e^{-2\tau}$ で
   一様抑制（低 $\ell$ は再電離バンプで例外）、$z_*$ 増は $r_s$ を縮め $\ell_1$ を高 $\ell$ へ。
-- $\sum m_\nu$ は本版で CLASS 委譲（`04` §7）。13章/NB6 では機構説明を記載。
+
+## ニュートリノ質量 $\sum m_\nu$ — 背景を厳密実装（`scripts/make_massive_nu.py`）
+共動エネルギー $\varepsilon=\sqrt{q^2+a^2m^2}$ の運動量積分で massive ν 背景を実装
+（`massive_nu.py`）。$\Omega_{\rm ncdm}h^2\approx\sum m_\nu/93$、平坦条件で $\Omega_\Lambda$ 減、
+$100\theta_*$ が $1.034\!\to\!1.040$（$0.06\!\to\!0.30$~eV）と動く。CLASS（フル ncdm）との比較
+（`figures/massive_nu.png`, $h$ 固定, $\sum m_\nu=0.12$~eV）:
+
+| 量 | 結果 |
+|---|---|
+| TT 絶対差 中央値 | **0.47%** |
+| 応答比 $C_\ell(0.12)/C_\ell(0)$ 最大差 | **1.89%** |
+
+unlensed TT の質量応答（$\theta_*$ シフトによる振動パターン）を CLASS と整合的に再現。
+残差 ~2% は摂動レベルの自由流（$q$ グリッド階層、$P(k)$ 抑制が主で TT 寄与小）で次段の項目。
 
 ## 収束・性能
 - ソース粗解＋細kスプライン視線積分により中 $\ell$ ジッタは解消（上図）。

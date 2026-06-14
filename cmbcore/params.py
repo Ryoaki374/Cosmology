@@ -43,7 +43,12 @@ class Params:
 
     # Derived (filled in post-init).
     Omega_gamma: float = field(init=False, default=0.0)
-    Omega_nu: float = field(init=False, default=0.0)
+    Omega_nu: float = field(init=False, default=0.0)     # relativistic total (all N_eff)
+    Omega_ur: float = field(init=False, default=0.0)     # massless part
+    Omega_ncdm0: float = field(init=False, default=0.0)  # massive part today
+    N_ur: float = field(init=False, default=0.0)
+    N_ncdm: int = field(init=False, default=0)
+    m_ncdm: float = field(init=False, default=0.0)       # eV per massive species
     Omega_Lambda: float = field(init=False, default=0.0)
     H0: float = field(init=False, default=0.0)
 
@@ -57,16 +62,35 @@ class Params:
         rho_gamma = const.a_rad * self.T_CMB ** 4 / const.c ** 2
         self.Omega_gamma = rho_gamma / rho_crit
 
-        # Massless neutrinos: 7/8 (4/11)^{4/3} per effective species.
-        self.Omega_nu = (
-            self.N_eff * (7.0 / 8.0) * (4.0 / 11.0) ** (4.0 / 3.0)
-            * self.Omega_gamma
-        )
+        # Neutrinos: relativistic-limit total (all N_eff), used by the
+        # perturbation hierarchy. 7/8 (4/11)^{4/3} per effective species.
+        per_species = (7.0 / 8.0) * (4.0 / 11.0) ** (4.0 / 3.0) * self.Omega_gamma
+        self.Omega_nu = self.N_eff * per_species
 
-        # Flat closure (or honour Omega_k if supplied).
+        # Split into massless (N_ur) + massive (N_ncdm) if Sigma_mnu > 0.
+        # One massive eigenstate carries the whole mass by default.
+        if self.Sigma_mnu > 0.0:
+            self.N_ncdm = 1
+            self.m_ncdm = self.Sigma_mnu  # eV (single species)
+            self.N_ur = max(self.N_eff - 1.0, 0.0)
+            from .massive_nu import MassiveNu
+            self._massive = MassiveNu(self.m_ncdm, self.N_ncdm, self.T_CMB,
+                                      self.Omega_gamma)
+            self.Omega_ncdm0 = self._massive.Omega_ncdm0()
+        else:
+            self.N_ncdm = 0
+            self.m_ncdm = 0.0
+            self.N_ur = self.N_eff
+            self._massive = None
+            self.Omega_ncdm0 = 0.0
+        self.Omega_ur = self.N_ur * per_species
+
+        # Flat closure (or honour Omega_k if supplied). With massive neutrinos
+        # the relativistic Omega_nu is replaced by Omega_ur + Omega_ncdm0.
         self.Omega_Lambda = (
             1.0 - self.Omega_k
-            - (self.Omega_b + self.Omega_c + self.Omega_gamma + self.Omega_nu)
+            - (self.Omega_b + self.Omega_c + self.Omega_gamma
+               + self.Omega_ur + self.Omega_ncdm0)
         )
 
     # --- convenience accessors -------------------------------------------------
