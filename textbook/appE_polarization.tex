@@ -24,10 +24,10 @@ $\tau$ を独立に測る鍵となる。
 
 \paragraph{減衰尾系統と偏光実装（本版で実装済み）}
 偏光を無視すると光子四重極＝粘性の扱いが変わり、Silk 減衰係数（第\ref{ch:ch09_damping}章
-式\eqref{eq:kD}）が偏光込みの $8/9$ ではなく $16/15$ になり、減衰尾が高めに出る。
+式\eqref{eq:kD}）が標準の $16/15$ ではなく $8/9$ に減って減衰が弱まり、減衰尾が高めに出る。
 \texttt{cmbcore} は\textbf{偏光階層 $\Theta^P_\ell$ を実装}し、温度の四重極衝突項を
 $\Pi=\Theta_2+\Theta^P_0+\Theta^P_2$ で置換、tight coupling の四重極閉包も偏光込み
-（$8/15$）に更新した。これにより CLASS 比較は
+（$8/15$）に更新した。これにより標準の $16/15$ 減衰が実現し、CLASS 比較は
 
 \begin{center}
 \begin{tabular}{lll}

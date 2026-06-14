@@ -24,18 +24,39 @@ Thomson 衝突項を合わせ、$x=\ln a$ 形で（`03` §3.1, P1--P4）:
   +\frac{ck}{3\mathcal H}\Psi+\tau'\Big[\Theta_1+\tfrac13 v_b\Big], \label{eq:P2}\\
   \Theta_\ell' &= \frac{\ell\,ck}{(2\ell+1)\mathcal H}\Theta_{\ell-1}
   -\frac{(\ell+1)ck}{(2\ell+1)\mathcal H}\Theta_{\ell+1}
-  +\tau'\Big[\Theta_\ell-\tfrac{1}{10}\Theta_2\delta_{\ell2}\Big],\quad(2\le\ell<\ell_{\max}). \label{eq:P3}
+  +\tau'\Big[\Theta_\ell-\tfrac{1}{10}\Pi\,\delta_{\ell2}\Big],\quad(2\le\ell<\ell_{\max}), \label{eq:P3}
 \end{align}
-最高次は $\eta$ を用いた打ち切り（P4）で閉じる。
-
-\subsection{トムソン衝突項}
-電子静止系での Thomson 散乱は等方化＋四重極依存を与え、実験室系へのブースト1次で
-Doppler 項 $\mu v_b$ が出る。結果として
+ここで四重極の散乱源は\textbf{偏光込み}の $\Pi\equiv\Theta_2+\Theta^P_0+\Theta^P_2$
+（次小節）である。最高次は無限階層を有限で閉じるための打ち切り（Callin）
 \begin{equation}
-  C[\Theta]=-\tau'\Big[\Theta_0-\Theta+\mu v_b-\tfrac12 P_2(\mu)\Theta_2\Big],
+  \Theta_{\ell_{\max}}'=\frac{ck}{\mathcal H}\Theta_{\ell_{\max}-1}
+  -\frac{c\,(\ell_{\max}+1)}{\mathcal H\,\eta}\,\Theta_{\ell_{\max}}
+  +\tau'\Theta_{\ell_{\max}},
+  \label{eq:P4}
 \end{equation}
-（$\tau'=-cn_e\sigma_T/H<0$）。偏光を無視するため $\Pi\to\Theta_2$ と置換しており、これが
-減衰尾に数% の系統を生む（第\ref{ch:ch09_damping}章・付録E）。完全な角度積分は付録E。
+で与える（$\eta$ は共形時間、$\ell_{\max}=8$）。
+
+\subsection{トムソン衝突項と偏光（導出契約 S6.3）}
+電子静止系での Thomson 散乱は単極へ等方化させ、四重極依存を残す。実験室系への
+ブースト1次で Doppler 項 $\mu v_b$ が出る。多重極展開すると衝突項は
+\begin{equation}
+  C[\Theta]=-\tau'\Big[\Theta_0-\Theta+\mu v_b-\tfrac{1}{2}P_2(\mu)\,\Pi\Big],
+\end{equation}
+（$\tau'=-cn_e\sigma_T/H<0$）。Thomson 散乱の偏光依存性により四重極源は温度四重極
+だけでなく\textbf{E モード偏光} $\Theta^P_\ell$ も含み、$\Pi=\Theta_2+\Theta^P_0+\Theta^P_2$。
+偏光は独立の階層
+\begin{align}
+  \Theta^{P\prime}_0 &= -\frac{ck}{\mathcal H}\Theta^P_1
+    +\tau'\Big[\Theta^P_0-\tfrac12\Pi\Big], \label{eq:Pol0}\\
+  \Theta^{P\prime}_\ell &= \frac{\ell\,ck}{(2\ell+1)\mathcal H}\Theta^P_{\ell-1}
+    -\frac{(\ell+1)ck}{(2\ell+1)\mathcal H}\Theta^P_{\ell+1}
+    +\tau'\Big[\Theta^P_\ell-\tfrac{1}{10}\Pi\,\delta_{\ell2}\Big], \label{eq:Poll}
+\end{align}
+に従う（打ち切りは\eqref{eq:P4} と同形、$\Theta\to\Theta^P$）。$\Pi$ が温度の四重極源に
+入ることで\textbf{減衰尾が正しく}なる：偏光込みの Silk 係数 $16/15$ が実現し、偏光無視
+（$\Pi\to\Theta_2$）の $8/9$ より強い減衰となって CLASS と一致する（第\ref{ch:ch09_damping}章・
+付録E）。\eqref{eq:P1}--\eqref{eq:Poll} は \texttt{cmbcore.perturbations.\_rhs\_full} に文字単位で
+実装されている。
 
 \subsection{CDM とバリオン（導出契約 S6.4, S6.5）}
 CDM は衝突なしの非相対論流体で2本（M1, M2）。バリオンは電子・陽子をクーロン結合した

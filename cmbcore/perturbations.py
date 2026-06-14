@@ -428,7 +428,9 @@ class PerturbationSolver:
         ckH = const.c * k / Hp
 
         Th1 = Y[i["Theta1"]]
-        Th2 = -20.0 * ckH / (45.0 * dtau) * Th1
+        # Polarized TC quadrupole closure (8/15), consistent with the dynamics,
+        # the handoff and the initial conditions.
+        Th2 = -8.0 * ckH / (15.0 * dtau) * Th1
         N = Y[i["N"]:i["N"] + nnu]
         Phi = Y[i["Phi"]]
         a = np.exp(xs)

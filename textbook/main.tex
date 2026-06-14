@@ -1,11 +1,13 @@
 % ゼロから構成するCMBパワースペクトル — 本文
-% 全14章＋付録A–F を収録（WP5）。Build: latexmk -lualatex main.tex
-\documentclass[11pt]{article}
+% 全14章＋付録A–F を収録（WP5）。Build: lualatex main.tex （日本語は luatexja）
+\documentclass[11pt]{ltjsarticle}
 
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{graphicx}
+\graphicspath{{../figures/}}   % run `make figures` first
 \usepackage{geometry}
 \geometry{a4paper,margin=25mm}
+\usepackage[strings]{underscore}  % allow literal _ in text (file names)
 \usepackage[hidelinks]{hyperref}
 \usepackage{cleveref}
 
@@ -14,6 +16,9 @@
 \newtcolorbox{intuition}{colback=blue!5,colframe=blue!50,title=【物理的直観】}
 \newtcolorbox{numreality}{colback=orange!5,colframe=orange!60,title=【数値の現実】}
 \newtcolorbox{advanced}{colback=gray!8,colframe=gray!50,title=【発展（読み飛ばし可）】}
+
+% numeric values from figures/values.json (run scripts/make_values_tex.py)
+\input{values}
 
 \title{ゼロから構成するCMBパワースペクトル\\
 \large 最小構成によるFLRWから $C_\ell$ までの自己完結的導出}

@@ -81,16 +81,18 @@ class BackgroundCosmology:
         """Return a dict of time-dependent density fractions :math:`\\Omega_i(x)`."""
         p = self.p
         x = np.asarray(x, dtype=float)
-        inv = (p.H0 / self.Hp(x)) ** 2  # = H0^2 / Hp^2
-        # Note: Omega_i(x) = rho_i(x)/rho_crit(x); use Hp scaling.
+        # Omega_i(x) = rho_i(x)/rho_crit(x) = (rho_i/rho_crit0)/(H/H0)^2.
         a = np.exp(x)
-        H2 = (self.H(x)) ** 2
-        fac = p.H0 ** 2 / H2
+        fac = p.H0 ** 2 / (self.H(x)) ** 2
+        # Neutrinos: massless part scales as a^-4; massive part via f_ncdm(a).
+        nu = p.Omega_ur * a ** -4
+        if self._mnu_g is not None:
+            nu = nu + self._mnu_g(x) * a ** -2   # a^2 f_ncdm -> f_ncdm = (a^2 f)/a^2
         return {
             "b": p.Omega_b * a ** -3 * fac,
             "c": p.Omega_c * a ** -3 * fac,
             "gamma": p.Omega_gamma * a ** -4 * fac,
-            "nu": p.Omega_nu * a ** -4 * fac,
+            "nu": nu * fac,
             "k": p.Omega_k * a ** -2 * fac,
             "Lambda": p.Omega_Lambda * fac,
         }

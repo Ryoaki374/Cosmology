@@ -9,13 +9,34 @@ $|\tau'|\gg ck/\mathcal H,1$ の強結合極限で光子階層を $\Theta_0,\The
 （第\ref{ch:ch14_numerics}章）の基礎になる。
 
 \subsection{強結合展開}
-$1/\tau'$ 展開の0次で衝突項が支配し、$\Theta_1=-v_b/3$（光子とバリオンが共動）、
-$\Theta_{\ell\ge2}\to0$。1次補正で
+$|\tau'|\gg1$ では衝突項が支配するので、$1/\tau'$ で展開する。0次（$\tau'\to\infty$）では
+P2 の括弧 $[\Theta_1+v_b/3]=0$、すなわち $\Theta_1=-v_b/3$（光子とバリオンが共動）、
+かつ高次 $\Theta_{\ell\ge2}\to0$。1次補正は四重極方程式 P3（$\ell=2$）を準定常
+（$\Theta_2'\simeq0$, $\Theta_3\simeq0$）で解いて得る。$\ell=2$ の P3 は
 \begin{equation}
-  \Theta_2=-\frac{20}{45}\frac{ck}{\mathcal H\tau'}\Theta_1,
+  0\simeq\frac{2ck}{5\mathcal H}\Theta_1+\tau'\Big[\Theta_2-\tfrac{1}{10}\Pi\Big],
+  \qquad \Pi=\Theta_2+\Theta^P_0+\Theta^P_2.
+  \label{eq:tc_quad}
 \end{equation}
-が現れ（第\ref{ch:ch09_damping}章の粘性の種）、高次の $\Theta_\ell$ は漸化式で代数的に
-与えられる。数値実装ではこの代数閉包を tight coupling 近似として用いる。
+偏光を無視（$\Pi=\Theta_2$）すれば $\tfrac{9}{10}\Theta_2=-\tfrac{2ck}{5\mathcal H\tau'}\Theta_1$
+より
+\begin{equation}
+  \Theta_2^{\rm (no\ pol)}=-\frac{20}{45}\frac{ck}{\mathcal H\tau'}\Theta_1.
+\end{equation}
+偏光を含めると、$\Theta^P$ の準定常解 $\Theta^P_0\simeq\tfrac12\Pi$,
+$\Theta^P_2\simeq\tfrac1{10}\Pi$（式\eqref{eq:Pol0}--\eqref{eq:Poll}）から
+$\Theta^P_0+\Theta^P_2=\tfrac35\Pi$、よって $\Pi=\Theta_2+\tfrac35\Pi$ すなわち
+$\Pi=\tfrac52\Theta_2$。これを\eqref{eq:tc_quad} に戻すと
+$\big(\tfrac{9}{10}-\tfrac{1}{10}\cdot\tfrac32\big)\Theta_2=\tfrac34\Theta_2
+=-\tfrac{2ck}{5\mathcal H\tau'}\Theta_1$、ゆえに
+\begin{equation}
+  \boxed{\ \Theta_2=-\frac{8}{15}\frac{ck}{\mathcal H\tau'}\Theta_1\ }
+  \label{eq:tc8_15}
+\end{equation}
+となる。\textbf{本書・コードはこの偏光込みの $8/15$ を用いる}（より大きい四重極＝より
+強い粘性で、第\ref{ch:ch09_damping}章の減衰係数 $16/15$ に対応；偏光無視なら $4/9$ で
+$8/9$）。高次 $\Theta_{\ell\ge3}$ と $\Theta^P_\ell$ は漸化
+$\Theta_\ell=-\tfrac{\ell}{2\ell+1}\tfrac{ck}{\mathcal H\tau'}\Theta_{\ell-1}$ で代数閉包する。
 
 \subsection{光子バリオン流体の振動子方程式（導出契約 S8.1）}
 $\Theta_0,\Theta_1$ の2本を連立し $\Theta_1$ を消去すると、強制減衰振動子
@@ -49,6 +70,31 @@ $R$ がゆっくり変わるとして式\eqref{eq:osc} を WKB で解くと
 $\Phi\propto j_1(y)/y,\ y=k\eta/\sqrt3$）、これが振動子\eqref{eq:osc} を共鳴的に駆動して
 振幅を増幅する（\textbf{radiation driving}）。初期振幅 $\sim0.5$ のモードがピーク付近で
 $\sim1.5$ に育つのはこの効果である。
+
+\subsection{tight coupling の数値積分（コード実装）}
+$|\tau'|$ が大きい再結合前は、$\Theta_1'$ と $v_b'$ がともに大きな $\tau'$ を含み数値的に
+硬い（stiff）。そこで $3\Theta_1+v_b$ の発展を解析的に整理する。M4 と P2 から
+$(3\Theta_1+v_b)'$ を作り、$\Theta_2$ を閉包\eqref{eq:tc8_15} で消すと、補助量
+\begin{equation}
+  q=\frac{-\big[(1-R)\tau'+(1+R)\tau''\big](3\Theta_1+v_b)
+    -\tfrac{ck}{\mathcal H}\Psi
+    +\big(1-\tfrac{\mathcal H'}{\mathcal H}\big)\tfrac{ck}{\mathcal H}(-\Theta_0+2\Theta_2)
+    -\tfrac{ck}{\mathcal H}\Theta_0'}
+    {(1+R)\tau'+\tfrac{\mathcal H'}{\mathcal H}-1},
+  \label{eq:tc_q}
+\end{equation}
+を用いて
+\begin{equation}
+  v_b'=\frac{1}{1+R}\Big[-v_b-\tfrac{ck}{\mathcal H}\Psi
+    +R\big(q+\tfrac{ck}{\mathcal H}(-\Theta_0+2\Theta_2)-\tfrac{ck}{\mathcal H}\Psi\big)\Big],
+  \qquad \Theta_1'=\tfrac13(q-v_b'),
+  \label{eq:tc_vb}
+\end{equation}
+と書ける（Callin (70)--(72)、$R=R_{\rm code}$）。これにより $\tau'$ の大きな項が相殺し、
+$\Theta_0,\Theta_1,v_b$ を安定に積分できる。TC は $|\tau'|>10$ かつ
+$|\tau'|>10\,ck/\mathcal H$ かつ $X_e>0.99$ を満たす間採用し、破れた時点でフル階層
+\eqref{eq:P1}--\eqref{eq:Poll} へ状態をコピーして切替える。式\eqref{eq:tc_q}--\eqref{eq:tc_vb} は
+\texttt{cmbcore.perturbations.\_rhs\_tc} に文字単位で実装されている。
 
 \subsection{数値との突き合わせ}
 NB3/NB7 で WKB 解とフル数値解を重ね描きすると、tight coupling が成立する範囲
