@@ -1,28 +1,71 @@
-% 第4章 計量摂動とゲージ（WP5 skeleton; 本文・導出は執筆予定）
+% 第4章 計量摂動とゲージ
 \section{計量摂動とゲージ}
 \label{ch:ch04_gauge}
 
 \paragraph{この章で導くこと（入力→出力）}
-SVT分解とゲージ自由度を理解し、conformal Newtonian ゲージを選択理由つきで固定する。
+摂動の SVT 分解を最小限示し（入力）、ゲージ自由度を理解した上で conformal
+Newtonian ゲージを\emph{理由つきで}固定する（出力 S4.1）。速度・密度ゆらぎの符号
+規約をここで一意に定め、第\ref{ch:ch05_einstein}--\ref{ch:ch06_boltzmann}章と
+\texttt{cmbcore} の実装を整合させる。
 
-% --- 節構成（01_textbook_spec.md より）-------------------------------------
 \subsection{なぜ摂動論か}
-% TODO(WP5): 4.1 の本文。
-\subsection{計量摂動とSVT分解}
-% TODO(WP5): 4.2 の本文。
-\subsection{ゲージ変換（契約 S4.1）}
-% TODO(WP5): 4.3 の本文。
+CMB のゆらぎは $\Delta T/T\sim10^{-5}$ であり、対応する計量・密度ゆらぎも
+$\lesssim10^{-4}$。よって背景＋1次摂動の線形理論が再結合期まで（小スケールの
+非線形成長を除き）正当化される。本書は1次摂動のみを扱う。
+
+\subsection{計量摂動の SVT 分解}
+一般の計量摂動 $\delta g_{\mu\nu}$ は、空間回転の既約表現でスカラー(S)・
+ベクトル(V)・テンソル(T)に分解できる。1次では三者は独立に発展し、ベクトルは
+減衰、テンソルは原始重力波（本書の主筋外、\textbf{発展}）。スカラーは4つの自由度を
+持つが、ゲージ固定で物理的な2つに減る。
+
+\begin{advanced}
+ベクトル摂動は能動的源がなければ $\propto a^{-2}$ で減衰する。テンソル摂動（重力波）は
+B モード偏光を生むが、TT スペクトルへの寄与は無視できる。本書はスカラーのみ扱う。
+\end{advanced}
+
+\subsection{ゲージ変換（導出契約 S4.1）}
+無限小座標変換 $x^\mu\to x^\mu+\xi^\mu$ のもとで計量・物質の摂動は
+\begin{equation}
+  \delta g_{\mu\nu}\to\delta g_{\mu\nu}-\nabla_\mu\xi_\nu-\nabla_\nu\xi_\mu,\qquad
+  \delta\rho\to\delta\rho-\dot{\bar\rho}\,\xi^0,
+\end{equation}
+と変換する。すなわち\textbf{密度ゆらぎはゲージ依存}であり、例えば一様密度スライスを
+選べば $\delta\rho=0$ にできる。物理は変換で不変なゲージ不変量、または特定ゲージで
+固定して扱う。
+
 \subsection{conformal Newtonian ゲージの固定}
-% TODO(WP5): 4.4 の本文。
+スカラー摂動の2自由度を使い、計量を
+\begin{equation}
+  ds^2=-(1+2\Psi)\,c^2dt^2+a^2(t)(1+2\Phi)\,\delta_{ij}\,dx^idx^j,
+  \label{eq:metric}
+\end{equation}
+に固定する（Dodelson/Callin 規約、`00` §3.1）。この形は非対角・非等方成分を持たず
+残留ゲージ自由度がない。$\Psi$ はニュートンポテンシャル（時間成分）、$\Phi$ は空間
+曲率摂動で、異方性応力が無視できるとき $\Phi\simeq-\Psi$（第\ref{ch:ch05_einstein}章）。
+
+\begin{numreality}
+Ma \& Bertschinger の $(\psi,\phi)$ とは\textbf{符号規約が異なる}（付録A の対応表）。
+\texttt{cmbcore} は式\eqref{eq:metric} の $(\Psi,\Phi)$ をそのまま用いる。
+\end{numreality}
+
 \subsection{ゲージ不変量 $\mathcal R$}
-% TODO(WP5): 4.5 の本文。
-\subsection{流体変数の定義（速度・符号規約）}
-% TODO(WP5): 4.6 の本文。
+共動曲率ゆらぎ $\mathcal R$ は超地平線で保存する量で（第\ref{ch:ch07_initial}章）、
+原始スペクトル $\mathcal P_\mathcal R$ の規格化に使う。Newtonian ゲージ変数では
+$\mathcal R=\Phi-\frac{\mathcal H}{k}v$ 型（本書符号）で表され、断熱初期条件を
+$\mathcal R=1$ に規格化する（第\ref{ch:ch11_cl}章の規格化監査）。
 
+\subsection{流体変数の定義}
+密度コントラスト $\delta_i\equiv\delta\rho_i/\bar\rho_i$、速度 $v_i$ を
+$T^0{}_i=(\bar\rho+\bar p)v_i$、スカラー速度 $v$ を $v_i=-\frac{ik_i}{k}v$ で定義する
+（`03_numerics_spec.md` と一致）。光子は輝度 $\Theta$ の多重極で表し、
+$v_\gamma=-3\Theta_1$ の関係を持つ（第\ref{ch:ch06_boltzmann}章）。
 
-\paragraph{導出契約}
-本章の導出契約: S4.1。各契約は「入力式→出力式」を中間ステップ省略なし
-（1ステップ＝学部4年生が5分で検算可能）で履行する。\emph{本文プローズは WP5 で執筆。}
+\paragraph{まとめ}
+SVT 分解からスカラー2自由度を取り出し、conformal Newtonian ゲージ\eqref{eq:metric} を
+固定、$\delta_i,v_i,\mathcal R$ の符号規約を確定した。
 
-\paragraph{まとめ・チェックリスト・演習}
-% TODO(WP5): 章末まとめ、チェックリスト、演習 3–6 問（うち1問は対応 NB の課題）。
+\paragraph{演習}
+(1) $\delta\rho$ のゲージ変換則から一様密度ゲージで $\delta\rho=0$ を示せ。
+(2) 式\eqref{eq:metric} に残留ゲージ自由度がないことを確認せよ。
+(3) Ma\&Bertschinger 規約との符号対応を付録A で確かめよ。

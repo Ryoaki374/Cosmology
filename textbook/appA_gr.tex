@@ -1,7 +1,43 @@
-% 付録A 一般相対論の計算詳細と規約対応表（WP5 skeleton）
+% 付録A 一般相対論の計算詳細と規約対応表
 \section*{付録A\quad 一般相対論の計算詳細と規約対応表}
 \addcontentsline{toc}{section}{付録A\quad 一般相対論の計算詳細と規約対応表}
 
-FLRW・摂動 Christoffel/Ricci 全成分表、Ma\&Bertschinger・Dodelson・本書の変数対応表（符号込み）。
+\paragraph{背景 Christoffel 記号}
+FLRW 計量 $ds^2=a^2(\eta)[-d\eta^2+\delta_{ij}dx^idx^j]$（共形時間, $\mathcal H=a'/a$）の
+非零成分は
+\begin{equation}
+  \Gamma^0_{00}=\mathcal H,\quad \Gamma^0_{ij}=\mathcal H\delta_{ij},\quad
+  \Gamma^i_{0j}=\mathcal H\delta^i_j.
+\end{equation}
 
-% TODO(WP5): 本文。
+\paragraph{摂動 Christoffel（conformal Newtonian, スカラー）}
+計量\eqref{eq:metric} の1次摂動の代表成分は
+\begin{align}
+  \delta\Gamma^0_{00}&=\Psi', & \delta\Gamma^0_{0i}&=\partial_i\Psi, &
+  \delta\Gamma^i_{00}&=\partial_i\Psi, \notag\\
+  \delta\Gamma^0_{ij}&=\big[\Phi'-2\mathcal H(\Psi-\Phi)... \big]\delta_{ij}, &
+  \delta\Gamma^i_{0j}&=\Phi'\delta^i_j,
+\end{align}
+（残りは付録の全成分表に従う；本書の数値実装は Ricci まで解析計算した結果である
+G1, G2（第\ref{ch:ch05_einstein}章）を直接用いる）。
+
+\paragraph{規約対応表（符号込み）}
+本書（Dodelson/Callin 系）と Ma \& Bertschinger（MB, synchronous/conformal Newtonian）の
+主要変数の対応:
+\begin{center}
+\begin{tabular}{lll}
+\hline
+量 & 本書 & Ma \& Bertschinger \\
+\hline
+時間ポテンシャル & $\Psi$ & $\psi$ \\
+空間曲率ポテンシャル & $\Phi$ & $-\phi$ \\
+計量符号 & $(-,+,+,+)$ & $(-,+,+,+)$ \\
+温度多重極 & $\Theta_\ell$ & $F_{\gamma\ell}/4$ \\
+バリオン光子比（音速） & $R_s=3\rho_b/4\rho_\gamma$ & $R$ \\
+結合係数（実装） & $R=1/R_s$ & --- \\
+\hline
+\end{tabular}
+\end{center}
+特に空間曲率ポテンシャルは\textbf{符号が反転}する（$\Phi_{\rm book}=-\phi_{\rm MB}$）ため、
+MB の式を引用する際は符号変換が必要。異方性応力が無視できるとき本書は
+$\Phi\simeq-\Psi$、MB は $\phi\simeq\psi$。
