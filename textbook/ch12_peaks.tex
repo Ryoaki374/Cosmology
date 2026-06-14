@@ -18,10 +18,20 @@
 で、第一ピーク $\ell_1\approx220$ を再現する（\texttt{analytic.acoustic\_scale}、NB7）。
 
 \subsection{奇数ピークと偶数ピーク}
-バリオン荷重 $R=3\rho_b/4\rho_\gamma$ は振動のゼロ点を $-(1+R)\Psi$ だけずらす
-（第\ref{ch:ch08_acoustic}章）。その結果、圧縮（奇数ピーク）が希薄化（偶数ピーク）より
-強められ、ピーク高に奇偶非対称が生じる。$\Omega_bh^2$ を上げると非対称が増す
-（第\ref{ch:ch13_params}章 F6/13.3）。
+WKB 解 $\Theta_0+(1+R)\Psi\simeq[\Theta_0(0)+(1+R)\Psi]\cos(kr_s)$（第\ref{ch:ch08_acoustic}章）
+の平衡点が $-(1+R)\Psi$ にずれていることが鍵である。$\Psi<0$（井戸）なので
+$-(1+R)\Psi>0$ で、振動は\emph{圧縮側に偏って}いる。観測量は実効温度 $\Theta_0+\Psi$ の
+2乗で、最大圧縮（$\cos=+1$、奇数番 $m=1,3,\dots$）では振幅が
+$[\Theta_0(0)+(1+R)\Psi]+\ldots$ と大きく、最大希薄（$\cos=-1$、偶数番）では小さい。
+振幅差は $\propto R\Psi$ なので、$R\propto\Omega_bh^2$ を上げると第1/第2、第3/第2 の
+ピーク高比 $H_1/H_2,H_3/H_2$ が拡大する。
+
+\begin{intuition}
+井戸の中の光子バリオン流体は、重力で「落ち込む」圧縮（奇数ピーク）が、圧力で「跳ね返る」
+希薄化（偶数ピーク）より\emph{重さ}（バリオン）の分だけ強い。だから第1ピーク（圧縮）は
+高く、第2ピーク（希薄）は相対的に低い。バリオンが多いほどこの非対称が際立つ——これが
+$\Omega_bh^2$ を CMB だけで測れる理由である。
+\end{intuition}
 
 \subsection{SW プラトーと積分 SW（導出契約 S12.1）}
 低 $\ell$ では SW 公式 $\Theta_0+\Psi=\Psi/3$（第\ref{ch:ch10_los}章）と

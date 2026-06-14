@@ -30,9 +30,20 @@ B モード偏光を生むが、TT スペクトルへの寄与は無視できる
   \delta g_{\mu\nu}\to\delta g_{\mu\nu}-\nabla_\mu\xi_\nu-\nabla_\nu\xi_\mu,\qquad
   \delta\rho\to\delta\rho-\dot{\bar\rho}\,\xi^0,
 \end{equation}
-と変換する。すなわち\textbf{密度ゆらぎはゲージ依存}であり、例えば一様密度スライスを
-選べば $\delta\rho=0$ にできる。物理は変換で不変なゲージ不変量、または特定ゲージで
-固定して扱う。
+と変換する（$\xi^\mu=(\xi^0,\xi^i)$、$\xi^i=\partial^i\xi$ がスカラー部）。
+すなわち\textbf{密度ゆらぎはゲージ依存}である。
+
+\begin{intuition}
+\textbf{ゲージ依存の具体例}。時間スライス（同時刻面）を $\xi^0$ だけずらすと、各点の
+背景密度が $\dot{\bar\rho}\,\xi^0$ だけ変わるので、観測される $\delta\rho$ もその分動く。
+極端には「密度が一様な面」を選べば $\delta\rho=0$（$\xi^0=\delta\rho/\dot{\bar\rho}$）に
+できてしまう。超地平線では $\delta\rho/\bar\rho$ がゲージで $O(1)$ も変わりうるため、
+「どの面で測った密度か」を宣言せずに摂動を語るのは無意味である。一方、計量の曲率に
+基づく $\mathcal R$（下記）はゲージ不変で、物理的な「ゆらぎの大きさ」を担う。
+\end{intuition}
+
+物理は変換で不変なゲージ不変量、または残留自由度のないゲージで固定して扱う。本書は
+後者（conformal Newtonian）を採る。
 
 \subsection{conformal Newtonian ゲージの固定}
 スカラー摂動の2自由度を使い、計量を

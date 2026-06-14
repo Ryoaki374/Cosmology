@@ -55,13 +55,27 @@ $\mathcal R_{\rm ini}=1$ となり、転送関数をそのまま $C_\ell$ 公式
 （第\ref{ch:ch11_cl}章）に入れてよい。
 
 \subsection{インフレーションの最小限}
-de Sitter 近似でモード関数がホライズン交差で凍結し、ほぼスケール不変な原始スペクトル
+初期ゆらぎの起源はインフレーション——準 de Sitter 膨張（$H\simeq$const）でスカラー場の
+量子ゆらぎが生成され、波長が地平線 $c/H$ を超えると「凍結」して古典的な曲率ゆらぎ
+$\mathcal R$ になる、という機構である。各モードはホライズン交差 $k=aH$ で振幅が決まり、
+de Sitter では交差時の $H$ がほぼ一定なので、ほぼスケール不変なスペクトル
 \begin{equation}
   \mathcal P_\mathcal R(k)=A_s\Big(\frac{k}{k_{\rm pivot}}\Big)^{n_s-1},\qquad
   k_{\rm pivot}=0.05~\mathrm{Mpc^{-1}},
+  \label{eq:PR}
 \end{equation}
-を与える（$n_s<1$ はスローロール）。本書はインフレーションの詳細導出は\textbf{発展}＋
-付録に委ね、「ほぼスケール不変・断熱・ガウシアン」の3性質を採用宣言として用いる。
+が得られる。$H$ がゆっくり減る（スローロール）ため $n_s$ はわずかに $1$ を下回り
+（$n_s\approx0.965$）、大スケールほどやや大きい。スローロールでは
+$\mathcal P_\mathcal R=\frac{1}{8\pi^2\epsilon}\big(\frac{H}{M_{\rm pl}}\big)^2$
+（$\epsilon$ はスローロールパラメータ）だが、本書はインフレーションの詳細導出を
+\textbf{発展}＋付録に委ね、「ほぼスケール不変・断熱・ガウシアン」の3性質を採用宣言として
+用いる。$A_s,n_s$ はこの式で定義され、第\ref{ch:ch13_params}章で $C_\ell$ への効きを調べる。
+
+\begin{advanced}
+モードが「凍結」するのは、超地平線で $\mathcal R$ の時間微分が $\propto(k/aH)^2\to0$ と
+なり、$\mathcal R$ が保存量になるからである（次小節）。観測される $C_\ell$ は再結合まで
+$\sim10^5$ 倍も膨張した後の像なので、原始スペクトルの「凍結値」がそのまま転送される。
+\end{advanced}
 
 \subsection{ガウシアン確率場}
 原始ゆらぎはガウシアンで、$\langle\mathcal R(\mathbf k)\mathcal R^*(\mathbf k')\rangle
