@@ -1,8 +1,14 @@
-.PHONY: all test figures values params nbgen notebooks book clean
+.PHONY: all test figures values params polarization class nbgen notebooks book clean
 
 PY ?= python3
 
 all: test values params figures nbgen
+
+polarization:
+	$(PY) scripts/make_polarization.py
+
+class:
+	$(PY) scripts/make_class_comparison.py
 
 test:
 	$(PY) -m pytest -q

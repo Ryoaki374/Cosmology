@@ -48,13 +48,16 @@ class PerturbationSolver:
     # --- variable layout -------------------------------------------------------
     # Full system state vector:
     #   [delta_c, v_c, delta_b, v_b, Phi,
-    #    Theta_0..Theta_lmax,
+    #    Theta_0..Theta_lmax,            (temperature)
+    #    ThetaP_0..ThetaP_lmax,          (E-mode polarization)
     #    N_0..N_lmax_nu]
     def _idx(self):
         i = {}
         i["delta_c"], i["v_c"], i["delta_b"], i["v_b"], i["Phi"] = 0, 1, 2, 3, 4
         base = 5
         i["Theta"] = base
+        base += self.lmax + 1
+        i["ThetaP"] = base
         base += self.lmax + 1
         i["N"] = base
         base += self.lmax_nu + 1
@@ -85,9 +88,20 @@ class PerturbationSolver:
         Theta = np.zeros(self.lmax + 1)
         Theta[0] = -0.5 * Psi
         Theta[1] = ckH / 6.0 * Psi
-        Theta[2] = -20.0 * ckH / (45.0 * dtau) * Theta[1]
+        # Polarized tight-coupling quadrupole closure (8/15; the no-polarization
+        # value is 20/45). This is what fixes the high-ell Silk damping.
+        Theta[2] = -8.0 * ckH / (15.0 * dtau) * Theta[1]
         for l in range(3, self.lmax + 1):
             Theta[l] = -l / (2.0 * l + 1.0) * ckH / dtau * Theta[l - 1]
+
+        # E-mode polarization initial conditions (Callin): ThetaP_0=5/4 Theta_2,
+        # ThetaP_1=-ck/(4 H tau') Theta_2, ThetaP_2=1/4 Theta_2, recursion above.
+        ThetaP = np.zeros(self.lmax + 1)
+        ThetaP[0] = 1.25 * Theta[2]
+        ThetaP[1] = -ckH / (4.0 * dtau) * Theta[2]
+        ThetaP[2] = 0.25 * Theta[2]
+        for l in range(3, self.lmax + 1):
+            ThetaP[l] = -l / (2.0 * l + 1.0) * ckH / dtau * ThetaP[l - 1]
 
         N = np.zeros(self.lmax_nu + 1)
         N[0] = -0.5 * Psi
@@ -106,6 +120,7 @@ class PerturbationSolver:
         y[i["v_b"]] = v_b
         y[i["Phi"]] = Phi
         y[i["Theta"]:i["Theta"] + self.lmax + 1] = Theta
+        y[i["ThetaP"]:i["ThetaP"] + self.lmax + 1] = ThetaP
         y[i["N"]:i["N"] + self.lmax_nu + 1] = N
         return y
 
@@ -142,10 +157,14 @@ class PerturbationSolver:
         v_b = y[i["v_b"]]
         Phi = y[i["Phi"]]
         Th = y[i["Theta"]:i["Theta"] + self.lmax + 1]
+        ThP = y[i["ThetaP"]:i["ThetaP"] + self.lmax + 1]
         N = y[i["N"]:i["N"] + self.lmax_nu + 1]
 
         Psi = self._Psi(x, Phi, Th[2], N[2], k)
         Phip = self._Phi_prime(x, k, Phi, Psi, delta_c, delta_b, Th[0], N[0])
+
+        # Polarization source Pi = Theta_2 + ThetaP_0 + ThetaP_2.
+        Pi = Th[2] + ThP[0] + ThP[2]
 
         dy = np.zeros_like(y)
         # Matter (M1-M4).
@@ -155,20 +174,32 @@ class PerturbationSolver:
         R = self._R_coupling(x)
         dy[i["v_b"]] = -v_b - ckH * Psi + dtau * R * (3.0 * Th[1] + v_b)
 
-        # Photons (P1-P4).
+        L = self.lmax
+        eta = float(self.bg.eta(x))
+
+        # Photons (P1-P4); the quadrupole collision uses Pi.
         dTh = np.zeros(self.lmax + 1)
         dTh[0] = -ckH * Th[1] - Phip
         dTh[1] = (ckH / 3.0) * Th[0] - (2.0 * ckH / 3.0) * Th[2] \
             + (ckH / 3.0) * Psi + dtau * (Th[1] + v_b / 3.0)
-        for l in range(2, self.lmax):
-            src = dtau * (Th[l] - 0.1 * Th[2] * (1 if l == 2 else 0))
+        for l in range(2, L):
+            src = dtau * (Th[l] - 0.1 * Pi * (1 if l == 2 else 0))
             dTh[l] = (l * ckH / (2.0 * l + 1.0)) * Th[l - 1] \
                 - ((l + 1.0) * ckH / (2.0 * l + 1.0)) * Th[l + 1] + src
-        L = self.lmax
-        eta = float(self.bg.eta(x))
         dTh[L] = ckH * Th[L - 1] \
             - const.c * (L + 1.0) / (Hp * eta) * Th[L] + dtau * Th[L]
         dy[i["Theta"]:i["Theta"] + self.lmax + 1] = dTh
+
+        # E-mode polarization hierarchy: source -1/2 Pi at l=0, -1/10 Pi at l=2.
+        dThP = np.zeros(self.lmax + 1)
+        dThP[0] = -ckH * ThP[1] + dtau * (ThP[0] - 0.5 * Pi)
+        for l in range(1, L):
+            src = dtau * (ThP[l] - 0.1 * Pi * (1 if l == 2 else 0))
+            dThP[l] = (l * ckH / (2.0 * l + 1.0)) * ThP[l - 1] \
+                - ((l + 1.0) * ckH / (2.0 * l + 1.0)) * ThP[l + 1] + src
+        dThP[L] = ckH * ThP[L - 1] \
+            - const.c * (L + 1.0) / (Hp * eta) * ThP[L] + dtau * ThP[L]
+        dy[i["ThetaP"]:i["ThetaP"] + self.lmax + 1] = dThP
 
         # Neutrinos (N1-N4): photon eqns with tau'->0, Theta->N.
         dN = np.zeros(self.lmax_nu + 1)
@@ -195,10 +226,11 @@ class PerturbationSolver:
         return i
 
     def _tc_theta2(self, x, k, Theta1):
+        # Polarized tight-coupling closure (8/15; no-polarization value 20/45).
         Hp = float(self.bg.Hp(x))
         dtau = float(self.rec.dtau(x))
         ckH = const.c * k / Hp
-        return -20.0 * ckH / (45.0 * dtau) * Theta1
+        return -8.0 * ckH / (15.0 * dtau) * Theta1
 
     def _rhs_tc(self, x, y, k):
         p = self.p
@@ -313,6 +345,8 @@ class PerturbationSolver:
 
         names = (["delta_c", "v_c", "delta_b", "v_b", "Phi"]
                  + [f"Theta{l}" for l in range(self.lmax + 1)]
+                 + [f"ThetaP{l}" for l in range(self.lmax + 1)]
+                 + ["Pi"]
                  + [f"N{l}" for l in range(self.lmax_nu + 1)]
                  + ["Psi"])
         cols = {nm: [] for nm in names}
@@ -368,11 +402,19 @@ class PerturbationSolver:
         Hp = float(self.bg.Hp(x))
         dtau = float(self.rec.dtau(x))
         ckH = const.c * k / Hp
-        Th2 = -20.0 * ckH / (45.0 * dtau) * Th1
+        Th2 = -8.0 * ckH / (15.0 * dtau) * Th1
         y[i_full["Theta"] + 2] = Th2
         for l in range(3, self.lmax + 1):
             y[i_full["Theta"] + l] = \
                 -l / (2.0 * l + 1.0) * ckH / dtau * y[i_full["Theta"] + l - 1]
+        # Polarization closures at the TC handoff.
+        ThP_full = np.zeros(self.lmax + 1)
+        ThP_full[0] = 1.25 * Th2
+        ThP_full[1] = -ckH / (4.0 * dtau) * Th2
+        ThP_full[2] = 0.25 * Th2
+        for l in range(3, self.lmax + 1):
+            ThP_full[l] = -l / (2.0 * l + 1.0) * ckH / dtau * ThP_full[l - 1]
+        y[i_full["ThetaP"]:i_full["ThetaP"] + self.lmax + 1] = ThP_full
         y[i_full["N"]:i_full["N"] + self.lmax_nu + 1] = \
             y_tc[i_tc["N"]:i_tc["N"] + self.lmax_nu + 1]
         return y
@@ -393,6 +435,12 @@ class PerturbationSolver:
         Psi = -Phi - 12.0 * self.p.H0 ** 2 / (const.c ** 2 * k ** 2 * a ** 2) \
             * (self.p.Omega_gamma * Th2 + self.p.Omega_nu * N[2])
 
+        # Polarization closures (algebraic during tight coupling).
+        ThP0 = 1.25 * Th2
+        ThP1 = -ckH / (4.0 * dtau) * Th2
+        ThP2 = 0.25 * Th2
+        Pi = Th2 + ThP0 + ThP2
+
         x_chunks.append(xs)
         cols["delta_c"].append(Y[i["delta_c"]])
         cols["v_c"].append(Y[i["v_c"]])
@@ -406,6 +454,14 @@ class PerturbationSolver:
         for l in range(3, self.lmax + 1):
             prev = -l / (2.0 * l + 1.0) * ckH / dtau * prev
             cols[f"Theta{l}"].append(prev)
+        cols["ThetaP0"].append(ThP0)
+        cols["ThetaP1"].append(ThP1)
+        cols["ThetaP2"].append(ThP2)
+        prevp = ThP2
+        for l in range(3, self.lmax + 1):
+            prevp = -l / (2.0 * l + 1.0) * ckH / dtau * prevp
+            cols[f"ThetaP{l}"].append(prevp)
+        cols["Pi"].append(Pi)
         for l in range(nnu):
             cols[f"N{l}"].append(N[l])
         cols["Psi"].append(Psi)
@@ -415,11 +471,13 @@ class PerturbationSolver:
         i = self._idx()
         nnu = self.lmax_nu + 1
         Th = Y[i["Theta"]:i["Theta"] + self.lmax + 1]
+        ThP = Y[i["ThetaP"]:i["ThetaP"] + self.lmax + 1]
         N = Y[i["N"]:i["N"] + nnu]
         Phi = Y[i["Phi"]]
         a = np.exp(xs)
         Psi = -Phi - 12.0 * self.p.H0 ** 2 / (const.c ** 2 * k ** 2 * a ** 2) \
             * (self.p.Omega_gamma * Th[2] + self.p.Omega_nu * N[2])
+        Pi = Th[2] + ThP[0] + ThP[2]
 
         x_chunks.append(xs)
         cols["delta_c"].append(Y[i["delta_c"]])
@@ -429,6 +487,9 @@ class PerturbationSolver:
         cols["Phi"].append(Phi)
         for l in range(self.lmax + 1):
             cols[f"Theta{l}"].append(Th[l])
+        for l in range(self.lmax + 1):
+            cols[f"ThetaP{l}"].append(ThP[l])
+        cols["Pi"].append(Pi)
         for l in range(nnu):
             cols[f"N{l}"].append(N[l])
         cols["Psi"].append(Psi)

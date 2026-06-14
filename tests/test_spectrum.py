@@ -43,3 +43,16 @@ def test_acoustic_scale_sane():
     lA = analytic.acoustic_scale(bg, rec)
     # l_A ~ pi chi / r_s ~ 300; first peak ~ 0.75 l_A ~ 220.
     assert 280 < lA < 320
+
+
+def test_polarization_TTEETE():
+    """EE is positive and out of phase with TT; TE oscillates in sign."""
+    from cmbcore.spectrum import k_grid
+    ps = PowerSpectrum(Params.fiducial())
+    ells = np.array([2, 100, 200, 300, 400, 500, 700])
+    ks = k_grid(nk=100) / const.Mpc
+    ells, D = ps.cls_all(ells=ells, ks_si=ks)
+    assert np.all(D["EE"] >= 0)                 # EE auto-spectrum non-negative
+    assert D["EE"][ells == 400] > D["EE"][ells == 200]  # EE rises (TT trough ~ EE peak)
+    assert np.any(D["TE"] < 0) and np.any(D["TE"] > 0)  # TE changes sign
+    assert np.all(D["TT"] > 0)

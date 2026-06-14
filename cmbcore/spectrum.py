@@ -60,18 +60,34 @@ def _init_worker(params, lmax, lmax_nu, x_los):
                         x_los=x_los))
 
 
-def _source_one_k(k):
-    """Return the (R-normalized) line-of-sight source S(x) for one wavenumber.
-
-    The source is smooth in k, so it is computed on the (coarse) solve grid and
-    later spline-interpolated onto a fine k-grid for the Bessel integral.
-    """
+def _worker_ps():
     ps = PowerSpectrum.__new__(PowerSpectrum)
     ps.p = _WORKER["params"]
     ps.bg = _WORKER["bg"]
     ps.rec = _WORKER["rec"]
     ps.solver = _WORKER["solver"]
     ps.lmax = _WORKER["solver"].lmax
+    return ps
+
+
+def _sources_TE_one_k(k):
+    """Return the temperature and E-mode sources (2, n_x) for one wavenumber."""
+    ps = _worker_ps()
+    x_los = _WORKER["x_los"]
+    res = ps.solver.solve(k)
+    norm = ps._R_ini(k)
+    S_T = ps._source(res, k, x_los) / norm
+    S_E = ps._source_E(res, k, x_los) / norm
+    return np.stack([S_T, S_E])
+
+
+def _source_one_k(k):
+    """Return the (R-normalized) temperature source S(x) for one wavenumber.
+
+    The source is smooth in k, so it is computed on the (coarse) solve grid and
+    later spline-interpolated onto a fine k-grid for the Bessel integral.
+    """
+    ps = _worker_ps()
     x_los = _WORKER["x_los"]
     res = ps.solver.solve(k)
     return ps._source(res, k, x_los) / ps._R_ini(k)
@@ -166,7 +182,7 @@ class PowerSpectrum:
         etau = np.exp(-rec.tau(x))
 
         Th0 = res["Theta0"](x)
-        Th2 = res["Theta2"](x)
+        Pi = res["Pi"](x)            # = Theta_2 + ThetaP_0 + ThetaP_2
         Psi = res["Psi"](x)
         Phi = res["Phi"](x)
         Psip = res["Psi"](x, 1)
@@ -175,22 +191,38 @@ class PowerSpectrum:
 
         ck = const.c * k_si
 
-        # Term 1: g (Theta0 + Psi + Theta2/4).
-        T1 = g * (Th0 + Psi + 0.25 * Th2)
+        # Term 1: g (Theta0 + Psi + Pi/4)  [polarization enters via Pi].
+        T1 = g * (Th0 + Psi + 0.25 * Pi)
         # Term 2: e^{-tau} (Psi' - Phi').
         T2 = etau * (Psip - Phip)
         # Term 3: -(1/ck) d/dx (Hp g v_b).
         Hgv = Hp * g * v_b
         Hgv_sp = CubicSpline(x, Hgv)
         T3 = -(1.0 / ck) * Hgv_sp(x, 1)
-        # Term 4: (3/4 c^2 k^2) d/dx [ Hp d/dx (Hp g Theta2) ].
-        HgT2 = Hp * g * Th2
+        # Term 4: (3/4 c^2 k^2) d/dx [ Hp d/dx (Hp g Pi) ].
+        HgT2 = Hp * g * Pi
         HgT2_sp = CubicSpline(x, HgT2)
         inner = Hp * HgT2_sp(x, 1)
         inner_sp = CubicSpline(x, inner)
         T4 = (3.0 / (4.0 * const.c ** 2 * k_si ** 2)) * inner_sp(x, 1)
 
         return T1 + T2 + T3 + T4
+
+    def _source_E(self, res, k_si, x):
+        """E-mode polarization source (§ appendix E / Callin).
+
+        :math:`\\tilde S_E(k,x)=\\dfrac{3\\,\\tilde g(x)\\,\\Pi(x)}{4\\,(k\\chi)^2}`,
+        with :math:`\\chi=\\eta_0-\\eta`. The geometric factor
+        :math:`\\sqrt{(\\ell+2)!/(\\ell-2)!}` is applied per-ell in the transfer.
+        """
+        g = self.rec.g_tilde(x)
+        Pi = res["Pi"](x)
+        chi = self.bg.eta0 - self.bg.eta(x)
+        kchi = k_si * chi
+        out = np.zeros_like(x, dtype=float)
+        m = kchi > 1e-8
+        out[m] = 0.75 * g[m] * Pi[m] / kchi[m] ** 2
+        return out
 
     # --- transfer functions (§4.2) --------------------------------------------
     def _default_x_los(self, n=1600):
@@ -238,6 +270,37 @@ class PowerSpectrum:
             results = pool.map(_source_one_k, list(ks_si),
                                chunksize=max(1, nk // (nproc * 4)))
         return ks_si, x_los, np.array(results)
+
+    def sources_TE(self, ks_si, x_los=None, verbose=False, nproc=None):
+        """Temperature and E-mode sources from one solve per k.
+
+        Returns ``(ks_si, x_los, S_T, S_E)``; both have shape
+        ``(len(ks_si), len(x_los))``, R-normalized.
+        """
+        if x_los is None:
+            x_los = self._default_x_los()
+        ks_si = np.asarray(ks_si)
+        nk = len(ks_si)
+        if nproc is None:
+            nproc = max(1, os.cpu_count() or 1)
+
+        if nproc == 1:
+            S_T = np.empty((nk, len(x_los)))
+            S_E = np.empty((nk, len(x_los)))
+            for ik, k in enumerate(ks_si):
+                res = self.solver.solve(k)
+                norm = self._R_ini(k)
+                S_T[ik] = self._source(res, k, x_los) / norm
+                S_E[ik] = self._source_E(res, k, x_los) / norm
+            return ks_si, x_los, S_T, S_E
+
+        init_args = (self.p, self.solver.lmax, self.solver.lmax_nu, x_los)
+        with Pool(processes=nproc, initializer=_init_worker,
+                  initargs=init_args) as pool:
+            res = pool.map(_sources_TE_one_k, list(ks_si),
+                           chunksize=max(1, nk // (nproc * 4)))
+        res = np.array(res)  # (nk, 2, n_x)
+        return ks_si, x_los, res[:, 0, :], res[:, 1, :]
 
     def los_integral(self, ells, ks_si, x_los, S, k_fine=None, nproc=None,
                      dz=2.0 * np.pi / 20.0):
@@ -340,3 +403,39 @@ class PowerSpectrum:
         T2 = (self.p.T_CMB * 1e6) ** 2  # K -> uK, squared
         Dl = ells * (ells + 1.0) / (2.0 * np.pi) * Cl * T2
         return ells, Dl
+
+    # --- temperature + polarization (TT, EE, TE) -------------------------------
+    def cls_all(self, ells=None, ks_si=None, verbose=False, nproc=None):
+        """Return ``(ells, {'TT','EE','TE'})`` (dimensionless) including E-mode.
+
+        One ODE solve per k feeds both the temperature and E-mode sources; the
+        E transfer carries the geometric factor :math:`\\sqrt{(\\ell+2)!/(\\ell-2)!}`.
+        """
+        if ells is None:
+            ells = default_ells()
+        ells = np.asarray(ells)
+        if ks_si is None:
+            ks_si = k_grid() / const.Mpc
+        ks, x_los, S_T, S_E = self.sources_TE(ks_si, verbose=verbose, nproc=nproc)
+        k_fine, Th_T = self.los_integral(ells, ks, x_los, S_T, nproc=nproc)
+        _, Th_E = self.los_integral(ells, ks, x_los, S_E, k_fine=k_fine,
+                                    nproc=nproc)
+        pref = np.sqrt(np.clip((ells + 2.0) * (ells + 1.0) * ells * (ells - 1.0),
+                               0.0, None))
+        Th_E = pref[:, None] * Th_E
+
+        P = self.P_R(k_fine)
+        lnk = np.log(k_fine)
+
+        def integ(A, B):
+            return np.array([4.0 * np.pi * np.trapezoid(P * A[i] * B[i], lnk)
+                             for i in range(len(ells))])
+        return ells, {"TT": integ(Th_T, Th_T), "EE": integ(Th_E, Th_E),
+                      "TE": integ(Th_T, Th_E)}
+
+    def dls_all(self, ells=None, ks_si=None, verbose=False, nproc=None):
+        """Like :meth:`cls_all` but D_ell = l(l+1)C_l T_CMB^2/2pi [μK²] (TE keeps sign)."""
+        ells, C = self.cls_all(ells, ks_si, verbose=verbose, nproc=nproc)
+        T2 = (self.p.T_CMB * 1e6) ** 2
+        fac = ells * (ells + 1.0) / (2.0 * np.pi) * T2
+        return ells, {k: fac * v for k, v in C.items()}
