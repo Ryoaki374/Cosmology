@@ -13,14 +13,19 @@ Newtonian ゲージで $\delta G^\mu{}_\nu=\frac{8\pi G}{c^4}\delta T^\mu{}_\nu$
 $\delta G^0{}_0,\ \delta G^0{}_i,\ \delta G^i{}_j$ の3種が独立に効く。
 
 \subsection{摂動エネルギー運動量テンソル}
-全成分（CDM・バリオン・光子・ニュートリノ）の和として
+全成分（CDM・バリオン・光子・ニュートリノ）の和として、混合成分で
 \begin{equation}
   \delta T^0{}_0=-\sum_i\bar\rho_i\delta_i,\quad
-  \delta T^0{}_i\propto\sum_i(\bar\rho_i+\bar p_i)v_i,\quad
-  \delta T^i{}_j\ni \text{異方性応力}\ \sigma.
+  \delta T^0{}_i=\sum_i(\bar\rho_i+\bar p_i)v_i,\quad
+  \delta T^i{}_j=\delta p\,\delta^i_j+\Sigma^i{}_j,
 \end{equation}
-光子・ニュートリノの異方性応力は四重極 $\Theta_2,\mathcal N_2$ に比例する（導出契約
-S5.2）。これが $\Phi$ と $\Psi$ を分離させる唯一の源である。
+で、$\Sigma^i{}_j$（トレースレス）が異方性応力。輝度モーメントとの対応は、光子の
+エネルギー密度ゆらぎ $\delta\rho_\gamma/\bar\rho_\gamma=4\Theta_0$、速度
+$v_\gamma=-3\Theta_1$、異方性応力 $\sigma_\gamma\propto\Theta_2$（ニュートリノも
+$\mathcal N_\ell$ で同様）。係数 $4$ は $\rho_\gamma\propto T^4$ から（$\delta\rho/\rho=
+4\delta T/T=4\Theta_0$）。光子・ニュートリノの四重極 $\Theta_2,\mathcal N_2$ だけが
+異方性応力を持ち（CDM・バリオンは非相対論的で $\sigma\approx0$）、これが $\Phi$ と
+$\Psi$ を分離させる\emph{唯一}の源である（導出契約 S5.2）。
 
 \subsection{独立な2本の選択}
 4本の方程式（00, 0i, ii, トレースレス ij）から、数値積分に最も適した独立2本を選ぶ。
