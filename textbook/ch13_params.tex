@@ -15,21 +15,37 @@ $\partial\ln C_\ell/\partial\ln p$ で測る。何を固定するか（$\theta_*
 照合する。
 
 \subsection{$A_s,n_s$}
-$A_s$ は全体振幅 $C_\ell\propto A_s$。$n_s$ は pivot $k_{\rm pivot}=0.05$~Mpc$^{-1}$
-周りで傾きを与え、低 $\ell$ と高 $\ell$ をシーソー状に変える。
+原始スペクトル $\mathcal P_\mathcal R=A_s(k/k_{\rm pivot})^{n_s-1}$ は線形に転送されるので、
+$C_\ell\propto A_s$ で全体振幅を一様にスケールする（ただし観測量は $A_se^{-2\tau}$ の組で、
+$\tau$ と縮退する）。$n_s$ は $k_{\rm pivot}=0.05~\mathrm{Mpc^{-1}}$（$\ell\sim700$ 付近に
+対応）まわりでスペクトルを傾け、$n_s<1$ なら大スケール（低 $\ell$）を持ち上げ小スケール
+（高 $\ell$）を下げる。対数微分は $\partial\ln C_\ell/\partial n_s=\ln(k_\ell/k_{\rm pivot})$
+（$k_\ell\approx\ell/\chi_*$）でシーソー状。\textbf{観測との含意}: $A_s$ 単独は $\tau$ と
+縮退し、低 $\ell$ EE（再電離バンプ）で破る。
 
-\subsection{$\Omega_bh^2$}
-バリオン荷重 $R\uparrow$ で奇数ピークが増強（奇偶非対称↑）、$c_s\downarrow$ で
-$r_s\downarrow$ → ピークが高 $\ell$ へ、$k_D$ 変化で減衰尾が変わる
-（第\ref{ch:ch12_peaks}章）。
+\subsection{$\Omega_bh^2$（バリオン）}
+バリオンを増やすと荷重 $R=3\rho_b/4\rho_\gamma$ が上がり、(i) 振動のゼロ点シフト
+$-(1+R)\Psi$ が深くなって\textbf{圧縮側（奇数）ピークが増強}、奇偶非対称
+$H_1/H_2,H_3/H_2$ が拡大（第\ref{ch:ch12_peaks}章）；(ii) 音速 $c_s=c/\sqrt{3(1+R)}$ が
+下がり音地平線 $r_s$ が縮むので\textbf{ピークがわずかに高 $\ell$ 側}へ；(iii) $n_e$ 増で
+拡散長 $k_D^{-1}$ が縮み\textbf{減衰尾がやや高め}に残る。\textbf{含意}: 奇偶比は $\Omega_bh^2$ の
+ほぼ純粋なプローブで、BBN と独立に測れる。
 
-\subsection{$\Omega_mh^2$}
-等密度 $a_{\rm eq}$ が動き、radiation driving と early ISW が増減して第一ピーク高に
-効く。$\chi_*$ と $r_s$ の双方が変わる。
+\subsection{$\Omega_mh^2$（物質）}
+物質を増やすと等密度 $a_{\rm eq}=\Omega_{r0}/\Omega_{m0}$ が早まる。再結合が物質優勢の
+奥に入るので、(i) 放射優勢期に減衰するポテンシャル $\Phi$ の駆動（radiation driving、
+第\ref{ch:ch08_acoustic}章）が弱まり\textbf{第一ピーク高が下がる}；(ii) early ISW
+（等密度直後の $\Phi$ 残留減衰）も減る；(iii) $\chi_*$ と $r_s$ が変わり $\theta_*$ も動く。
+\textbf{含意}: 第一ピーク高（駆動）と $\theta_*$ の組で $\Omega_mh^2$ と $\Omega_bh^2$ を
+分離できる。
 
-\subsection{$\Omega_\Lambda$・曲率}
-$100\theta_*$ を一定に保つ線上では一次 $C_\ell$ がほぼ不変（\textbf{幾何縮退}）。
-破れるのは late ISW が効く $\ell\lesssim30$ のみ。
+\subsection{$\Omega_\Lambda$・曲率（幾何縮退）}
+$\Lambda$ と曲率 $\Omega_k$ は再結合期の物理を変えず、\emph{距離} $\chi_*$ だけを変える。
+$100\theta_*=r_s^*/\chi_*$ を一定に保つ $(\Omega_\Lambda,\Omega_k)$ の線上では一次 $C_\ell$
+（$\ell\gtrsim30$）がほぼ不変——これが\textbf{幾何学的縮退}である。破れるのは (i) late ISW
+（$\Lambda$ 優勢期の $\Phi$ 減衰）が効く $\ell\lesssim30$ と、(ii) レンズ・$H_0$ 直接測定・
+BAO との組合せのみ。\textbf{含意}: CMB 単独では $\Omega_\Lambda$ と $\Omega_k$ は縮退し、
+外部データで破る。
 
 \subsection{光学的厚み $\tau$ と再電離 $z_{\rm re}$（導出契約 S13.1）}
 再電離後の散乱で $\ell\gtrsim30$ の全ピークが一様に $e^{-2\tau}$ で抑制される。

@@ -14,9 +14,17 @@ $\lambda_{\rm mfp}=1/(n_e\sigma_T a)$ が再結合に向けて伸びるほど拡
 スケール $k>k_D\sim1/\lambda_D$ のゆらぎは散乱でならされて消える。
 
 \subsection{強結合1次の系統的展開（導出契約 S9.1）}
-$1/\tau'$ 展開の1次で、四重極 $\Theta_2$（粘性）と $\Theta_1+v_b/3$ のずれ（滑り＝
-熱伝導）が現れる。これを振動子方程式（第\ref{ch:ch08_acoustic}章）に戻すと分散関係に
-虚部が生じ、振幅が $\exp[-(k/k_D)^2]$ で減衰する。減衰スケールは
+$1/\tau'$ 展開の1次では、0次で消えていた量が $\propto1/\tau'$ で復活する：四重極
+$\Theta_2=-\frac{8}{15}\frac{ck}{\mathcal H\tau'}\Theta_1$（粘性＝せん断、第\ref{ch:ch08_acoustic}章
+式\eqref{eq:tc8_15}）と、$\Theta_1+v_b/3$ のずれ（光子バリオンの滑り＝熱伝導）。これらを
+振動子方程式\eqref{eq:osc} に戻すと、復元項に加えて $\propto k^2/\tau'$ の\emph{摩擦}項が
+生じ、平面波解 $\Theta_0\propto e^{i\int\omega d\eta}$ の分散関係が
+\begin{equation}
+  \omega=\pm c_sk+\frac{i}{2}k^2\!\left[\frac{1}{6(1+R)|\dot\tau|}
+  \Big(\frac{R^2}{1+R}+\frac{16}{15}\Big)\right]
+\end{equation}
+と虚部を持つ。$e^{i\int\omega d\eta}$ の虚部が振幅減衰 $\exp[-(k/k_D)^2]$ を与え、
+減衰スケールは虚部の積分
 \begin{equation}
   \frac{1}{k_D^2(\eta)}=\int_0^\eta\frac{d\eta'}{6(1+R)\,|\dot\tau|}
   \left[\frac{R^2}{1+R}+\frac{16}{15}\right],

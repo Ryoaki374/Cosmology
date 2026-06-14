@@ -9,15 +9,49 @@
 すべて「導出済みの式」になる。本書の心臓部。
 
 \subsection{Liouville 演算子（導出契約 S6.1）}
-測地線方程式から、計量\eqref{eq:metric} 中の光子運動量の変化
-$\frac{dp}{d\eta},\ \frac{d\hat p^i}{d\eta}$ を1次で求める。エネルギー変化は重力赤方偏移
-（$\Psi$ の勾配）とポテンシャルの時間変化（$\Phi'$）から成る。これが無衝突部分の源に
-なる。
+光子の位相空間分布 $f(x^\mu,P^\mu)$ は無衝突なら測地線に沿って一定
+（$df/d\lambda=0$）。これを変数 $(\eta,x^i,p,\hat p^i)$ で書き下す。質量殻
+$P^\mu P_\mu=0$ と計量\eqref{eq:metric}（共形時間版 $ds^2=a^2[-(1+2\Psi)d\eta^2+
+(1+2\Phi)dx^2]$）から、固有運動量の大きさ $p$（局所慣性系で測ったエネルギー
+$E=pc$）と方向 $\hat p^i$ を定義すると、$P^0=\frac{p}{a}(1-\Psi)$、
+$P^i=\frac{p}{a}\hat p^i(1-\Phi)$。全微分は
+\begin{equation}
+  \frac{df}{d\eta}=\frac{\partial f}{\partial\eta}
+  +\frac{dx^i}{d\eta}\frac{\partial f}{\partial x^i}
+  +\frac{dp}{d\eta}\frac{\partial f}{\partial p}
+  +\frac{d\hat p^i}{d\eta}\frac{\partial f}{\partial\hat p^i},
+\end{equation}
+で、$d\hat p^i/d\eta$ の項は1次で $\partial f/\partial\hat p^i$（背景等方）に掛かるので
+2次となり落ちる。測地線方程式 $dP^\mu/d\lambda+\Gamma^\mu_{\alpha\beta}P^\alpha P^\beta=0$
+の $\mu=0$ 成分を1次まで展開すると、運動量の変化率
+\begin{equation}
+  \frac{1}{p}\frac{dp}{d\eta}=-\mathcal H-\Phi'_{,\eta}-ik\mu\,\Psi
+  \label{eq:dpdeta}
+\end{equation}
+を得る（$-\mathcal H$ は宇宙膨張による赤方偏移、$-\Phi'_{,\eta}$ はポテンシャル時間変化、
+$-ik\mu\Psi$ は重力ポテンシャル勾配＝重力赤方偏移；Fourier 空間 $\partial_i\to ik_i$、
+$\mu=\hat k\cdot\hat p$）。背景 $-\mathcal H$ は黒体性を保ったまま温度を下げる
+（第\ref{ch:ch02_thermal}章）ので、ゆらぎは残り2項で駆動される。
 
-\subsection{光子: 無衝突部分と多重極展開}
-輝度 $\Theta(\eta,\mathbf k,\hat p)$ を $\mu=\hat k\cdot\hat p$ で多重極展開
-$\Theta=\sum_\ell(-i)^\ell(2\ell+1)P_\ell(\mu)\Theta_\ell$ する。無衝突 Liouville 項と
-Thomson 衝突項を合わせ、$x=\ln a$ 形で（`03` §3.1, P1--P4）:
+\subsection{輝度（温度ゆらぎ）関数と無衝突方程式}
+分布を背景プランク分布 $\bar f$ のまわりで温度ゆらぎ $\Theta$ として
+$f=\bar f\!\big(p/[1+\Theta(\eta,\mathbf x,\hat p)]\big)$ とパラメータ化する。
+$\bar f$ は $p/T$ のみの関数なので、$\Theta=\delta T/T$ は\emph{$p$ に依らない}方向場と
+なり、$p\,\partial_p\bar f=-T\,\partial_T\bar f$ を使うと $\delta f=-p\,\partial_p\bar f\,\Theta$。
+これを Liouville 方程式に代入し $p$ 依存を消すと、無衝突部分は
+\begin{equation}
+  \Theta'_{,\eta}+ick\mu\,\Theta=-\Phi'_{,\eta}-ick\mu\,\Psi,
+  \label{eq:collisionless}
+\end{equation}
+（$' _{,\eta}=\partial/\partial\eta$）。両辺を $\mathcal H$ で割り $x=\ln a$ 形にすれば、
+左辺第2項が階層間結合 $\frac{ck}{\mathcal H}\mu\Theta$、右辺が重力源 $-\Phi'-\frac{ck}{\mathcal H}\mu\Psi$ となる。
+
+\subsection{多重極展開と階層（導出契約 S6.3 前半）}
+$\mu$ の冪は Legendre 漸化 $\mu P_\ell=\frac{\ell+1}{2\ell+1}P_{\ell+1}+\frac{\ell}{2\ell+1}P_{\ell-1}$
+で隣接 $\ell$ を結ぶ。$\Theta=\sum_\ell(-i)^\ell(2\ell+1)P_\ell(\mu)\Theta_\ell$ を
+\eqref{eq:collisionless} に代入し $P_\ell$ の係数を比較すると、$\mu\Theta$ の項が
+$\Theta_{\ell\pm1}$ への結合を生み、衝突項（次小節）を加えて $x=\ln a$ 形で
+（`03` §3.1, P1--P4）:
 \begin{align}
   \Theta_0' &= -\frac{ck}{\mathcal H}\Theta_1-\Phi', \label{eq:P1}\\
   \Theta_1' &= \frac{ck}{3\mathcal H}\Theta_0-\frac{2ck}{3\mathcal H}\Theta_2
@@ -26,15 +60,18 @@ Thomson 衝突項を合わせ、$x=\ln a$ 形で（`03` §3.1, P1--P4）:
   -\frac{(\ell+1)ck}{(2\ell+1)\mathcal H}\Theta_{\ell+1}
   +\tau'\Big[\Theta_\ell-\tfrac{1}{10}\Pi\,\delta_{\ell2}\Big],\quad(2\le\ell<\ell_{\max}), \label{eq:P3}
 \end{align}
-ここで四重極の散乱源は\textbf{偏光込み}の $\Pi\equiv\Theta_2+\Theta^P_0+\Theta^P_2$
-（次小節）である。最高次は無限階層を有限で閉じるための打ち切り（Callin）
+ここで $\Theta_0$ は温度ゆらぎ（密度）、$\Theta_1$ は双極子（速度 $v_\gamma=-3\Theta_1$）、
+$\Theta_2$ は四重極（粘性）。四重極の散乱源は\textbf{偏光込み}の
+$\Pi\equiv\Theta_2+\Theta^P_0+\Theta^P_2$（次小節）。階層は無限に続くので、最高次は
+打ち切り（Callin）
 \begin{equation}
   \Theta_{\ell_{\max}}'=\frac{ck}{\mathcal H}\Theta_{\ell_{\max}-1}
   -\frac{c\,(\ell_{\max}+1)}{\mathcal H\,\eta}\,\Theta_{\ell_{\max}}
   +\tau'\Theta_{\ell_{\max}},
   \label{eq:P4}
 \end{equation}
-で与える（$\eta$ は共形時間、$\ell_{\max}=8$）。
+で閉じる（$\eta$ は共形時間、$\ell_{\max}=8$；$-c(\ell+1)/(\mathcal H\eta)$ 項は
+自由ストリーミングの外向き流出を近似する）。
 
 \subsection{トムソン衝突項と偏光（導出契約 S6.3）}
 電子静止系での Thomson 散乱は単極へ等方化させ、四重極依存を残す。実験室系への
@@ -66,8 +103,19 @@ CDM は衝突なしの非相対論流体で2本（M1, M2）。バリオンは電
   \delta_b' &= \frac{ck}{\mathcal H}v_b-3\Phi', & v_b' &= -v_b-\frac{ck}{\mathcal H}\Psi
   +\tau'R\,(3\Theta_1+v_b),
 \end{align}
-ここで結合係数 $R=\frac{4\Omega_{\gamma0}}{3\Omega_{b0}}e^{-x}$。運動量保存から、光子側の
-衝突項（P2 の $\tau'[\Theta_1+v_b/3]$）と符号が逆で $R$ 倍になる。
+ここで結合係数 $R=\frac{4\Omega_{\gamma0}}{3\Omega_{b0}}e^{-x}$。運動量保存（作用反作用）
+から、バリオンが光子から受ける力は P2 の衝突項 $\tau'[\Theta_1+v_b/3]$ と符号が逆で、
+密度比 $\rho_\gamma/\rho_b\propto R$ 倍に増幅されて $\tau'R(3\Theta_1+v_b)$ となる。
+
+\begin{intuition}
+\textbf{なぜ CDM・バリオンは2本で閉じ、光子は閉じないのか}。非相対論的物質は圧力が
+無視でき、分布は密度（$\ell=0$）と速度（$\ell=1$）の2モーメントで尽きる——高次
+モーメント（圧力・粘性）が $\sim(v/c)^2$ で抑制されるからである。一方、光子は相対論的で
+圧力 $p=\rho/3$ を持ち、自由ストリーミングが各 $\ell$ から $\ell\pm1$ へ次々とパワーを
+運ぶ（式\eqref{eq:P3} の漸化）ため階層が閉じず、無限次まで（実際には $\ell_{\max}$ で
+打ち切って）追う必要がある。これが「音響振動（流体）」と「自由ストリーミング（減衰）」を
+分ける物理である。
+\end{intuition}
 
 \begin{numreality}
 \textbf{記号の罠}: この結合係数 $R=4\Omega_{\gamma0}/(3\Omega_{b0})e^{-x}$ は、
@@ -77,9 +125,15 @@ CDM は衝突なしの非相対論流体で2本（M1, M2）。バリオンは電
 \end{numreality}
 
 \subsection{ニュートリノ}
-質量ゼロニュートリノは光子と同形で衝突項なし（N1--N4: P1--P4 で $\tau'\to0$,
-$\Theta\to\mathcal N$, $\ell_{\max}^\nu$ 使用）。質量ありは運動量依存が消えず $q$ グリッドが
-必要で、本書は第\ref{ch:ch13_params}章で CLASS に委譲する。
+質量ゼロニュートリノは光子と同形だが\emph{衝突項がない}（$\tau'\to0$）。階層 N1--N4 は
+P1--P4 で $\Theta\to\mathcal N$、衝突項を落とした形で、$\ell_{\max}^\nu=10$ まで追う。
+自由ストリーミングのみで進むため、地平線進入後は速やかに高次へパワーが流れ
+（位相混合で）減衰する——これが放射優勢期のポテンシャル減衰（第\ref{ch:ch08_acoustic}章の
+radiation driving）に寄与する。質量ありニュートリノは共動エネルギー
+$\varepsilon=\sqrt{(qc)^2+(amc^2)^2}$ が運動量 $q$ に依存するため、各 $q$ ごとに階層を
+持つ（$q$ グリッド）。本書は\textbf{背景}を厳密に実装し（第\ref{ch:ch13_params}章,
+\texttt{massive\_nu.py}）、摂動レベルの $q$ グリッド階層（$P(k)$ 抑制；TT への寄与は小）は
+第2版の拡張とする。
 
 \paragraph{まとめ}
 $df/d\lambda=C[f]$ から光子階層\eqref{eq:P1}--\eqref{eq:P3}、CDM・バリオン流体、
