@@ -46,7 +46,7 @@ SWプラトー $\mathcal D_\ell\sim10^3\,\mu K^2$、Silk減衰尾）を再現す
 振幅規格化は IC が $\mathcal R=1$ 正規化
 （$\Psi_{\rm ini}=-\tfrac23\mathcal R/(1+\tfrac4{15}f_\nu)$）である事実から
 $\mathcal R_{\rm ini}=1$ として確定（`spectrum._R_ini`）。
-pytest は §5.1–5.2 の単体テスト全20件が緑。
+pytest は §5.1–5.2 の単体テスト全21件が緑（偏光 TT/EE/TE 検査を含む）。
 
 ### WP2 ノートブック NB0–NB8（`02_notebook_spec.md`）
 - 全9冊を `scripts/make_notebooks.py` で生成。重いスペクトルはキャッシュ
@@ -75,12 +75,18 @@ pytest は §5.1–5.2 の単体テスト全20件が緑。
   ビルドは toolchain のある環境で `make book`）。残るは図の最終差し込みと相互参照の
   通しビルド（WP6）。
 
-### CLASS 比較（`03` §5.3）— 実施済み
-- `classy` 3.3.4 を導入し `scripts/make_class_comparison.py` で設定A比較を実行。
-  **中央値 0.79%、$\ell\lesssim950$ で <3%**。第一〜第三ピークは CLASS とほぼ一致し
-  振幅規格化の正しさを確認（旧「+12〜25%」は Planck フル物理との差で、較正不要だった）。
-  $\ell\gtrsim1000$ の +最大13% は偏光無視の減衰系統（付録E）。`figures/class_tt.csv` に
-  キャッシュ。
+### 偏光（Eモード）実装 — 完了 ✅
+- 偏光階層 $\Theta^P_\ell$ を `perturbations.py` に追加し、温度の四重極ソースを
+  $\Pi=\Theta_2+\Theta^P_0+\Theta^P_2$ に置換。tight coupling の四重極閉包も偏光込み
+  （$8/15$）に更新、IC も Callin の偏光初期条件に。
+- `spectrum.py` に E モードソース $\tilde S_E=\frac34\tilde g\Pi/(k\chi)^2$ と幾何因子
+  $\sqrt{(\ell+2)!/(\ell-2)!}$ を実装、`cls_all/dls_all` で **TT/EE/TE** を出力。
+
+### CLASS 比較（`03` §5.3）— 実施済み・**DoD 達成**
+- `classy` 3.3.4、`scripts/make_class_comparison.py`。偏光実装により
+  **全 $\ell\le1500$ で <1.5%（中央値 0.37%、$\ell\le1000$ 最大 1.43%）**一致し、
+  DoD#1（全$\ell$5%・$\ell\le1000$ 3%）を達成。減衰尾の旧系統（+13%）は解消。
+  EE/TE は `scripts/make_polarization.py` で CLASS と比較（`figures/polarization.png`）。
 
 ### 視線積分の性能 — 改善済み
 - ベッセル表構築＋視線積分を ell 並列化（`spectrum.los_integral(nproc=...)`）。
@@ -89,17 +95,18 @@ pytest は §5.1–5.2 の単体テスト全20件が緑。
 ## 既知の制約・残課題（次フェーズへ引き継ぎ）
 - **WP6 通しビルド**: LaTeX toolchain のある環境での PDF 通しビルド、相互参照・索引解決、
   本文への図の最終差し込みと裸数値監査（`values.json` 由来の確認）。本文・図・数値は揃済み。
-- **偏光（減衰尾系統）**: $\ell\gtrsim1000$ の +最大13% を解消するには E/B 偏光の実装が必要
-  （第2版; 付録E を昇格）。本版では系統として定量済み。
 - **$\sum m_\nu$**: 質量ニュートリノは本版で CLASS 委譲（`04` §7）。$\tau$・$z_*$ は自前計算で
   定量提示済み（NB6/第13章）。
+- **B モード偏光**: スカラーは E のみ生成（B はテンソル/レンズ起源）。本版は EE/TE まで。
 
 ## 再現方法
 ```bash
 pip install -e .            # 依存: numpy scipy matplotlib pytest nbformat nbconvert
-make test                  # 単体テスト（§5.1-5.2）全20件
+make test                  # 単体テスト（§5.1-5.2）全21件
 make values                # figures/values.json と cls_fiducial.npz
 python scripts/make_param_study.py   # param_study.npz（τ, z_* 依存）
+python scripts/make_polarization.py  # TT/EE/TE（偏光; classy 任意）
+python scripts/make_class_comparison.py  # CLASS 比較（classy 任意）
 make figures               # 全図 + figures/manifest.yaml
 python scripts/make_notebooks.py     # NB0–NB8 生成
 make notebooks             # nbconvert --execute で全NB完走確認
