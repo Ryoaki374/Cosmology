@@ -22,9 +22,11 @@ $1/\tau'$ 展開の1次で、四重極 $\Theta_2$（粘性）と $\Theta_1+v_b/3
   \left[\frac{R^2}{1+R}+\frac{16}{15}\right],
   \label{eq:kD}
 \end{equation}
-で与えられる。\textbf{偏光を無視すると最後の係数が $16/15$ になる}（偏光込みでは
-$8/9$）。この差が CLASS 比での減衰尾の系統差（第\ref{ch:ch14_numerics}章・付録E）の
-主因である。
+で与えられる。最後の括弧の定数 $16/15$ は\textbf{偏光を含めた標準値}で、
+\texttt{cmbcore} はこれを用いる（\texttt{analytic.silk\_scale}）。偏光を無視すると
+四重極（粘性）が小さくなり係数は $8/9$ に減る（減衰が弱まり減衰尾が高く出る）。
+偏光を実装した本書はより強い $16/15$ の減衰を持ち、CLASS の減衰尾と一致する
+（第\ref{ch:ch14_numerics}章・付録E）。
 
 \begin{numreality}
 式\eqref{eq:kD} は \texttt{cmbcore.analytic.silk\_scale} に実装。fiducial で
@@ -46,7 +48,8 @@ $e^{-(k/k_D)^2}$ とフル数値の振幅は $k\lesssim0.2$~Mpc$^{-1}$ で $20\%
 
 \paragraph{まとめ}
 拡散減衰スケール $k_D$\eqref{eq:kD} を導き、$k_D\approx0.149$~Mpc$^{-1}$ を数値確認した。
-偏光無視による係数 $16/15$ が減衰尾の既知系統を生む。
+偏光を含めた係数 $16/15$ を用い、減衰尾は CLASS と一致する（偏光無視なら $8/9$ で
+減衰不足となり減衰尾が高く出る）。
 
 \paragraph{演習}
 (1) 式\eqref{eq:kD} の次元を確認せよ。

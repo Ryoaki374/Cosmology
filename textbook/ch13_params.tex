@@ -60,12 +60,26 @@ $A_se^{-2\tau}$ の縮退は偏光 EE 再電離バンプ（付録E、振幅 $\pr
 （自由流長）。
 
 \texttt{cmbcore} は\textbf{質量ニュートリノの背景を厳密に実装}する
-（\texttt{massive\_nu.py}）。共動エネルギー $\varepsilon=\sqrt{q^2+a^2m^2}$ の運動量
-積分で $\rho_{\rm ncdm}(a)$ を求め、相対論的（$\propto a^{-4}$）から非相対論的
-（$\propto a^{-3}$）への遷移を捉える。今日の密度は $\Omega_{\rm ncdm}h^2\approx
-\sum m_\nu/93~\mathrm{eV}$ を再現し、平坦条件で $\Omega_\Lambda$ が減るため $H(z)$ と
-距離が変わる（$h$ 固定で $\sum m_\nu=0.06/0.12/0.30$~eV に対し $\Omega_\Lambda{:}\,
-0.686\!\to\!0.684\!\to\!0.679$、$100\theta_*{:}\,1.034\!\to\!1.040$）。
+（\texttt{massive\_nu.py}）。共動運動量 $q$ の Fermi--Dirac 分布
+$f_0(q)=[e^{q c/k_BT_\nu}+1]^{-1}$（$T_\nu=(4/11)^{1/3}T_{\rm CMB}$）に対し、共動エネルギー
+$\varepsilon=\sqrt{(qc)^2+(amc^2)^2}$ を運動量積分してエネルギー密度を得る。無次元
+$x\equiv qc/k_BT_\nu$、$y(a)\equiv amc^2/k_BT_\nu$ とおくと
+\begin{equation}
+  \frac{\rho_{\rm ncdm}(a)}{\rho_{\rm crit,0}}
+  =A\,a^{-4}\!\int_0^\infty\! x^2\sqrt{x^2+y(a)^2}\,f_0(x)\,dx,
+  \qquad
+  A=\frac{N_{\rm ncdm}\,(7/8)(4/11)^{4/3}\Omega_{\gamma0}}{\int_0^\infty x^3 f_0\,dx},
+  \label{eq:rho_ncdm}
+\end{equation}
+規格化 $A$ は相対論極限（$y\to0$、$\sqrt{x^2+y^2}\to x$）で1質量種が1無質量種
+$(7/8)(4/11)^{4/3}\Omega_{\gamma0}a^{-4}$ に一致するよう定めた（$\int x^3f_0=7\pi^4/120$）。
+非相対論極限（$y\gg1$）では $\sqrt{x^2+y^2}\to y\propto a$ なので積分が $\propto a$ となり
+$\rho_{\rm ncdm}\propto a^{-3}$（物質的）へ移行する。今日の値は
+$\Omega_{\rm ncdm}h^2\approx\sum m_\nu/93~\mathrm{eV}$ を再現し、平坦条件で
+$\Omega_\Lambda$ が減るため $H(z)$ と距離が変わる（$h$ 固定で
+$\sum m_\nu=0.06/0.12/0.30$~eV に対し $\Omega_\Lambda{:}\,0.686\!\to\!0.684\!\to\!0.679$、
+$100\theta_*{:}\,1.034\!\to\!1.040$）。$\mathcal H$ には
+$E=(\mathcal H/H_0)^2$ の項 $a^2\rho_{\rm ncdm}/\rho_{\rm crit,0}$ として入る。
 
 \begin{numreality}
 背景実装は CLASS（フル ncdm）の unlensed TT 応答 $C_\ell(\sum m_\nu)/C_\ell(0)$ と

@@ -65,9 +65,8 @@ $x\equiv\ln a$、$\mathcal H\equiv aH$ とすると、平坦宇宙で
 \end{equation}
 共形時間（本書では長さ次元、$c$ 込み）は
 $\eta(x)=\int_{-\infty}^{x}\frac{c\,\mathrm dx'}{\mathcal H(x')}$。
-等密度は $a_{\rm eq}=\Omega_{r0}/\Omega_{m0}$、数値で
-$z_{\rm eq}\approx\input{|"python3 -c \"import json;print(int(json.load(open('../figures/values.json'))['z_eq']))\""}$
-（\texttt{values.json} 由来）。
+等密度は $a_{\rm eq}=\Omega_{r0}/\Omega_{m0}$、数値で $z_{\rm eq}\approx\valzeq$
+（\texttt{values.json} 由来のマクロ \texttt{\textbackslash valzeq}）。
 
 \begin{numreality}
 式 \eqref{eq:Hp} は \texttt{cmbcore.background.BackgroundCosmology.Hp} に
@@ -80,6 +79,13 @@ $z_{\rm eq}\approx\input{|"python3 -c \"import json;print(int(json.load(open('..
 共動距離 $\chi(x)=\eta_0-\eta(x)$。最終散乱面までの共動角径距離 $\chi(z_*)$ は
 $C_\ell$ の角度射影 $\ell\sim k\chi$ を決める基本量であり、本書の fiducial
 宇宙では $\chi(z_*)\approx 13.9$\,Gpc（第11章・第14章で使用）。
+
+\begin{figure}[ht]\centering
+  \includegraphics[width=0.78\linewidth]{bg_density_fractions.png}
+  \caption{密度分率 $\Omega_i(x)$ の進化（\texttt{cmbcore}, NB1）。放射優勢から物質優勢、
+  さらに $\Lambda$ 優勢への遷移と等密度 $z_{\rm eq}$（縦線）を示す。}
+  \label{fig:bg}
+\end{figure}
 
 \paragraph{まとめ}
 背景宇宙は $\mathcal H(x)$ ひとつで記述され、そこから $\eta,\chi,z_{\rm eq}$ が

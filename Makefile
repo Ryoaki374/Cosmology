@@ -15,6 +15,7 @@ test:
 
 values:
 	$(PY) scripts/make_values.py
+	$(PY) scripts/make_values_tex.py
 
 params:
 	$(PY) scripts/make_param_study.py
@@ -29,9 +30,11 @@ nbgen:
 notebooks:
 	jupyter nbconvert --to notebook --execute --inplace notebooks/*.ipynb
 
-book:
-	@echo "LaTeX build is a WP5 deliverable; see textbook/ for the skeleton."
-	cd textbook && (latexmk -lualatex main.tex || echo "(LaTeX toolchain not installed)")
+book: figures
+	$(PY) scripts/make_values_tex.py
+	cd textbook && lualatex -interaction=nonstopmode main.tex >/dev/null \
+	  && lualatex -interaction=nonstopmode main.tex >/dev/null \
+	  && echo "built textbook/main.pdf"
 
 clean:
 	rm -rf figures/*.png figures/*.pdf .pytest_cache **/__pycache__

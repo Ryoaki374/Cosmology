@@ -34,12 +34,12 @@ j_\ell(k\Delta\eta)$ を使い、$\mu$ の冪を $\frac{1}{ik}\frac{d}{d\Delta\e
 であり、$\ell\approx k(\eta_0-\eta_*)=k\chi_*$ のとき最大の寄与を与える。
 
 \subsection{ソース関数の物理}
-4項に分解されたソース関数は（偏光なし $\Pi=\Theta_2$）
+4項に分解された温度ソース関数は（$\Pi=\Theta_2+\Theta^P_0+\Theta^P_2$, 第\ref{ch:ch06_boltzmann}章）
 \begin{align}
-  \tilde S(k,x)=&\ \underbrace{\tilde g\Big[\Theta_0+\Psi+\tfrac14\Theta_2\Big]}_{\text{SW（実効温度）}}
+  \tilde S(k,x)=&\ \underbrace{\tilde g\Big[\Theta_0+\Psi+\tfrac14\Pi\Big]}_{\text{SW（実効温度）}}
   +\underbrace{e^{-\tau}\big[\Psi'-\Phi'\big]}_{\text{ISW}} \notag\\
   &-\underbrace{\frac{1}{ck}\frac{d}{dx}\big(\mathcal H\tilde g\,v_b\big)}_{\text{Doppler}}
-  +\underbrace{\frac{3}{4c^2k^2}\frac{d}{dx}\!\Big[\mathcal H\frac{d}{dx}\big(\mathcal H\tilde g\,\Theta_2\big)\Big]}_{\text{四重極補正}}.
+  +\underbrace{\frac{3}{4c^2k^2}\frac{d}{dx}\!\Big[\mathcal H\frac{d}{dx}\big(\mathcal H\tilde g\,\Pi\big)\Big]}_{\text{四重極補正}}.
   \label{eq:source}
 \end{align}
 \begin{itemize}
@@ -47,9 +47,24 @@ j_\ell(k\Delta\eta)$ を使い、$\mu$ の冪を $\frac{1}{ik}\frac{d}{d\Delta\e
   $\Theta_0+\Psi$ を射影する。$\Psi$ はポテンシャル井戸からの脱出赤方偏移。
   \item \textbf{ISW項}: $e^{-\tau}$（再結合後はほぼ1）と $\Psi'-\Phi'$ の積。道中で
   ポテンシャルが時間変化すると光子が正味のエネルギーを得る（第\ref{ch:ch12_peaks}章）。
-  \item \textbf{Doppler項}: バリオン速度 $v_b$ の視線方向成分。
-  \item \textbf{四重極補正}: 偏光を無視した近似での残差項。
+  \item \textbf{Doppler項}: バリオン速度 $v_b$ の視線方向成分（部分積分で $\Theta_1$ から
+  $\mathcal H\tilde g\,v_b$ の $x$ 微分に移した）。
+  \item \textbf{四重極補正}: 散乱四重極 $\Pi$ の寄与。偏光込みの $\Pi$ を使うことで
+  減衰尾が正しくなる（付録E）。
 \end{itemize}
+
+\subsection{E モード偏光のソースと転送関数}
+偏光輝度 $\Theta^P$ にも同じ視線積分が成り立ち、E モードの転送関数は
+\begin{equation}
+  \Theta^E_\ell(k)=\sqrt{\frac{(\ell+2)!}{(\ell-2)!}}
+  \int_{-\infty}^{0}\tilde S_E(k,x)\,j_\ell\big[k(\eta_0-\eta)\big]\,dx,
+  \qquad
+  \tilde S_E(k,x)=\frac{3\,\tilde g(x)\,\Pi(x)}{4\,\big[k(\eta_0-\eta)\big]^2},
+  \label{eq:los_E}
+\end{equation}
+で与えられる（幾何因子 $\sqrt{(\ell+2)!/(\ell-2)!}=\sqrt{(\ell+2)(\ell+1)\ell(\ell-1)}$ は
+スピン2場の射影に由来し、$\ell\ge2$ でのみ非零）。これと温度転送 $\Theta_\ell$ から
+$C_\ell^{EE}, C_\ell^{TE}$ を構成する（第\ref{ch:ch11_cl}章, \texttt{spectrum.cls\_all}）。
 
 \begin{numreality}
 式\eqref{eq:source} は \texttt{cmbcore.spectrum.\_source} に4項個別に実装され、

@@ -92,9 +92,19 @@ pytest は §5.1–5.2 の単体テスト全21件が緑（偏光 TT/EE/TE 検査
 - ベッセル表構築＋視線積分を ell 並列化（`spectrum.los_integral(nproc=...)`）。
   直列と bit 一致を確認、実測 2.4倍以上の高速化（高 $\ell$ ほど効く）。
 
+### WP6 通しビルド・コード監査 — 実施
+- **PDF ビルド成功**: `make book`（lualatex + luatexja）で `textbook/main.pdf` が
+  エラーなく生成（全14章＋付録、相互参照解決済み）。本文数値は
+  `scripts/make_values_tex.py` が `values.json` から生成する `values.tex` マクロ
+  （例 `\valzeq`）経由で差し込み（裸数値リテラルを排除）。主要図は `\includegraphics` で挿入。
+- **コード監査**: `cmbcore` 全式を `03_numerics_spec.md` と突合せ。発見した不整合
+  （tight coupling 記録時の四重極閉包が偏光更新後も 20/45 のままだった点）を 8/15 に修正。
+  全式を本文 .tex に反映済み（Saha/Peebles 係数、TC q方程式、ソース4項、偏光階層、
+  massive-ν 位相空間積分等）。全22テスト緑。
+
 ## 既知の制約・残課題（次フェーズへ引き継ぎ）
-- **WP6 通しビルド**: LaTeX toolchain のある環境での PDF 通しビルド、相互参照・索引解決、
-  本文への図の最終差し込みと裸数値監査（`values.json` 由来の確認）。本文・図・数値は揃済み。
+- **本文の分量**: 現状 PDF 約32ページ（全14章＋付録の導出は完結）。仕様の 200ページ目標
+  には説明・例・演習解答の加筆が必要（構成・式・図・数値は揃済み）。
 - **$\sum m_\nu$ 摂動**: 質量ニュートリノは**背景を厳密実装**済み（`massive_nu.py`、CLASS と
   unlensed TT で中央値0.47%一致）。摂動の自由流（$q$ グリッド階層, $P(k)$ 抑制）は次段
   （TT 寄与は小）。
